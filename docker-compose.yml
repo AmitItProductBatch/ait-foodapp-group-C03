@@ -1,27 +1,29 @@
+name: ait-foodapp-group-c03
+
 services:
   # ============================================================================
   # PostgreSQL Database Service
   # ============================================================================
   postgres-db:
     image: postgres:16-alpine
-    container_name: fooddelivery-postgres03
+    container_name: fooddelivery-postgres-03
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-fooddelivery}
+      POSTGRES_DB: ${POSTGRES_DB:-fooddelivery03}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "${POSTGRES_PORT:-5003}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data03:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-fooddelivery}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-fooddelivery03}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     networks:
-      - fooddelivery-network
+      - fooddelivery-network03
 
   # ============================================================================
   # Spring Boot Backend API Service
@@ -30,12 +32,12 @@ services:
     build:
       context: ./food-delivery-backend
       dockerfile: Dockerfile
-    container_name: fooddelivery-backend03
+    container_name: fooddelivery-backend-03
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-8083}:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DB:-fooddelivery}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DB:-fooddelivery03}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -44,7 +46,7 @@ services:
       postgres-db:
         condition: service_healthy
     networks:
-      - fooddelivery-network
+      - fooddelivery-network03
 
   # ============================================================================
   # React / Vite Frontend Service
@@ -55,26 +57,26 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8083/api/users}
-    container_name: fooddelivery-frontend03
+    container_name: fooddelivery-frontend-03
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-4003}:80"
     depends_on:
       - backend
     networks:
-      - fooddelivery-network
+      - fooddelivery-network03
 
 # ==============================================================================
 # Persistent Volumes
 # ==============================================================================
 volumes:
-  postgres_data:
+  postgres_data03:
     name: fooddelivery_postgres_data03
 
 # ==============================================================================
 # Networks
 # ==============================================================================
 networks:
-  fooddelivery-network:
+  fooddelivery-network03:
     name: fooddelivery-network03
     driver: bridge

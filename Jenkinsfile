@@ -31,8 +31,8 @@ pipeline {
     // Environment Variables
     // =========================================================================
     environment {
-        BACKEND_IMAGE  = "${params.DOCKER_USERNAME}/food-delivery-backend"
-        FRONTEND_IMAGE = "${params.DOCKER_USERNAME}/food-delivery-frontend"
+        BACKEND_IMAGE  = "${params.DOCKER_USERNAME}/food-delivery-backend-03"
+        FRONTEND_IMAGE = "${params.DOCKER_USERNAME}/food-delivery-frontend-03"
         IMAGE_TAG      = "${BUILD_NUMBER}"
         VITE_API_URL   = "http://${params.SERVER_IP}:8083/api/users"
     }
@@ -191,7 +191,7 @@ pipeline {
             echo "🎉 Pipeline Completed Successfully!"
             echo "👉 Frontend Application : http://${params.SERVER_IP}:4003"
             echo "👉 Backend REST API     : http://${params.SERVER_IP}:8083/api/users"
-            echo "👉 PostgreSQL Database  : Port 5003 (DB: fooddelivery)"
+            echo "👉 PostgreSQL Database  : Port 5003 (DB: fooddelivery03)"
             echo "🎉 ========================================================"
         }
         failure {
