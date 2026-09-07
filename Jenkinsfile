@@ -12,7 +12,7 @@ pipeline {
         )
         string(
             name: 'SERVER_IP',
-            defaultValue: 'localhost',
+            defaultValue: '194.242.57.93',
             description: 'Public IP or domain of the deployment server'
         )
         string(
