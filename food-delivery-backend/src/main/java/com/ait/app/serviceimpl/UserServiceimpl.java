@@ -28,4 +28,10 @@ public class UserServiceimpl implements Userservice {
 		return repository.save(user);
 	}
 
+	@Override
+	public User getUser(int id) {
+		// TODO Auto-generated method stub
+		return repository.findById(id).get();
+	}
+
 }
