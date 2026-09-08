@@ -23,8 +23,7 @@ public class AddressServiceimpl implements AddressService {
 	@Override
 	public Address createAddress(int userId, AddressRequestDTO dto) {
 
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
 		Address address = new Address();
 

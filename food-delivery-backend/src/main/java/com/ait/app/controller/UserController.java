@@ -16,32 +16,26 @@ import com.ait.app.service.Userservice;
 @RequestMapping("/api/users")
 public class UserController {
 
+	private Userservice userService;
 
-private Userservice userService;
+	public UserController(Userservice userService) {
+		this.userService = userService;
+	}
 
-public UserController(Userservice userService) {
-    this.userService = userService;
-}
+	@PostMapping("/register")
+	public ResponseEntity<User> registerUser(@RequestBody UserRequestDTO dto) {
 
-// Register User
-@PostMapping("/register")
-public ResponseEntity<User> registerUser(
-        @RequestBody UserRequestDTO dto) {
+		User user = userService.Registeruser(dto);
 
-    User user = userService.Registeruser(dto);
+		return ResponseEntity.ok(user);
+	}
 
-    return ResponseEntity.ok(user);
-}
+	@PostMapping("/login")
+	public ResponseEntity<User> login(@RequestBody LoginRequestDTO dto) {
 
-// Login User
-@PostMapping("/login")
-public ResponseEntity<User> login(
-        @RequestBody LoginRequestDTO dto) {
+		User user = userService.login(dto);
 
-    User user = userService.login(dto);
-
-    return ResponseEntity.ok(user);
-}
-
+		return ResponseEntity.ok(user);
+	}
 
 }
