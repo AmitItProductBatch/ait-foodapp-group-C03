@@ -24,5 +24,4 @@ public class AddressController {
 
 		return addressService.createAddress(userId, dto);
 	}
-
 }
