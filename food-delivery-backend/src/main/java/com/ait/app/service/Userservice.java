@@ -6,4 +6,5 @@ import com.ait.app.entity.User;
 public interface Userservice {
 
 	User Registeruser(UserRequestDTO dto);
+
 }
