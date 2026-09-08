@@ -11,11 +11,14 @@ import com.ait.app.service.Userservice;
 
 @RestController
 public class UserController {
-@Autowired
-Userservice userservice;
-	
+
+	@Autowired
+	Userservice userservice;
+
 	@PostMapping("/user/register")
-	private User registerUser(@RequestBody UserRequestDTO dto ) {
+	public User registerUser(@RequestBody UserRequestDTO dto) {
+
 		return userservice.Registeruser(dto);
 	}
+
 }
