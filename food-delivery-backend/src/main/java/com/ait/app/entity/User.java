@@ -22,12 +22,11 @@ public class User {
 
 	private String name;
 	private String email;
+	@JsonIgnore
 	private String password;
 	private String phonenumber;
 	private String role;
 	
-	
-	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Address> addresses;
 

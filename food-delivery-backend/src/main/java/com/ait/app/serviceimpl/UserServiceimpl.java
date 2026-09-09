@@ -89,19 +89,33 @@ public class UserServiceimpl implements Userservice {
 			 
 			    Address address = optionalAddress.get(); 
 			 
+			    if (addressDto.getAddressLabel() != null) {
+			        address.setAddressLabel(addressDto.getAddressLabel());
+			    }
+
+			    if (addressDto.getStreetAddress() != null) { 
+			        address.setStreetAddress(addressDto.getStreetAddress()); 
+			    }
+
+			    if (addressDto.getApartment() != null) {
+			        address.setApartment(addressDto.getApartment());
+			    }
+
+			    if (addressDto.getLandmark() != null) {
+			        address.setLandmark(addressDto.getLandmark());
+			    }
+			 
 			    if (addressDto.getCity() != null) { 
 			        address.setCity(addressDto.getCity()); 
 			    } 
 			 
-			    if (addressDto.getStreetAddress() != null) { 
-			        address.setStreetAddress(addressDto.getStreetAddress()); 
-			    } 
-			 
 			    if (addressDto.getPostalCode() != null) { 
 			        address.setPostalCode(addressDto.getPostalCode()); 
-			    } 
-			    
-			    
+			    }
+
+			    if (addressDto.getDeliveryInstructions() != null) {
+			        address.setDeliveryInstructions(addressDto.getDeliveryInstructions());
+			    }
 			 
 			    addressRepository.save(address); 
 			} 
