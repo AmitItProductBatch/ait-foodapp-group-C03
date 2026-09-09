@@ -1,5 +1,7 @@
 package com.ait.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +26,7 @@ public class Address {
 	private String postalCode;
 	private String deliveryInstructions;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="user_id")
 	private User user;
