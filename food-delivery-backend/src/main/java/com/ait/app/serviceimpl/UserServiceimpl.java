@@ -82,8 +82,7 @@ public class UserServiceimpl implements Userservice {
 			    AdressUpdateDto addressDto = dto.getAdressUpdateDto(); 
 			 
 			    Optional<Address> optionalAddress = 
-			            addressRepository.findById(addressDto.getId()); 
-			 
+			    		addressRepository.findByIdAndUserId(addressDto.getId(), id);			 
 			    if (optionalAddress.isEmpty()) { 
 			        throw new RuntimeException("Address not found"); 
 			    } 
@@ -101,6 +100,8 @@ public class UserServiceimpl implements Userservice {
 			    if (addressDto.getPostalCode() != null) { 
 			        address.setPostalCode(addressDto.getPostalCode()); 
 			    } 
+			    
+			    
 			 
 			    addressRepository.save(address); 
 			} 
