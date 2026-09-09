@@ -2,6 +2,7 @@
 package com.ait.app.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,7 +45,13 @@ public ResponseEntity<User> login(
     User user = userService.login(dto);
 
     return ResponseEntity.ok(user);
-}  
+}
+
+@GetMapping("/{id}")
+public ResponseEntity<User> getUser(@PathVariable int id) {
+    return ResponseEntity.ok(userService.getUser(id));
+}
+
    @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(
             @PathVariable int id,
