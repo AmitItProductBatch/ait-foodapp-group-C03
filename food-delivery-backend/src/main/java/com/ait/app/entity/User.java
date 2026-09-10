@@ -1,35 +1,36 @@
 package com.ait.app.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-	private String name;
-	private String email;
-	private String password;
-	private String phonenumber;
-	private String role;
-	
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<Address> addresses;
+    private String name;
+    private String email;
+
+    @JsonIgnore
+    private String password;
+
+    private String phonenumber;
+    private String role;
+
+    private boolean deleted = false;
+
+    private LocalDateTime deletedAt;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Address> addresses;
 
 	public int getId() {
 		return id;
@@ -79,6 +80,22 @@ public class User {
 		this.role = role;
 	}
 
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
+	public LocalDateTime getDeletedAt() {
+		return deletedAt;
+	}
+
+	public void setDeletedAt(LocalDateTime deletedAt) {
+		this.deletedAt = deletedAt;
+	}
+
 	public List<Address> getAddresses() {
 		return addresses;
 	}
@@ -87,4 +104,5 @@ public class User {
 		this.addresses = addresses;
 	}
 
+    
 }

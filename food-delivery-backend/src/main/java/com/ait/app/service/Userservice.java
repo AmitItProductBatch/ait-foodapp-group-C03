@@ -15,4 +15,5 @@ public interface Userservice {
 	
 	User updateProfile(int id, UpdateProfileDto dto);
 
+	void DeletUser(int id);
 }

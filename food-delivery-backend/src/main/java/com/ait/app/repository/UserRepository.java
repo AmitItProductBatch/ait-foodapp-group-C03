@@ -1,4 +1,3 @@
-
 package com.ait.app.repository;
 
 import java.util.Optional;
@@ -10,7 +9,6 @@ import com.ait.app.entity.User;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByEmail(String email);
-    
-    boolean existsByEmailAndIdNot(String email,int id);
 
+    boolean existsByEmailAndIdNot(String email, int id);
 }

@@ -13,32 +13,30 @@ import com.ait.app.service.AddressService;
 @Service
 public class AddressServiceimpl implements AddressService {
 
-	@Autowired
-	AddressRepository addressRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
-	@Autowired
-	UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
+    @Override
+    public Address createAddress(int userId, AddressRequestDTO dto) {
 
-	@Override
-	public Address createAddress(int userId, AddressRequestDTO dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new RuntimeException("User not found"));
+        Address address = new Address();
 
-		Address address = new Address();
+        address.setAddressLabel(dto.getAddressLabel());
+        address.setStreetAddress(dto.getStreetAddress());
+        address.setApartment(dto.getApartment());
+        address.setLandmark(dto.getLandmark());
+        address.setCity(dto.getCity());
+        address.setPostalCode(dto.getPostalCode());
+        address.setDeliveryInstructions(dto.getDeliveryInstructions());
 
-		address.setAddressLabel(dto.getAddressLabel());
-		address.setStreetAddress(dto.getStreetAddress());
-		address.setApartment(dto.getApartment());
-		address.setLandmark(dto.getLandmark());
-		address.setCity(dto.getCity());
-		address.setPostalCode(dto.getPostalCode());
-		address.setDeliveryInstructions(dto.getDeliveryInstructions());
+        address.setUser(user);
 
-		address.setUser(user);
-
-		return addressRepository.save(address);
-	}
-
+        return addressRepository.save(address);
+    }
 }
