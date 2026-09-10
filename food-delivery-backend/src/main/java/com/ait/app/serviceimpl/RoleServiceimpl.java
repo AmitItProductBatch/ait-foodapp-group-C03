@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import com.ait.app.dto.RoleRequestDTO;
 import com.ait.app.dto.RoleResponseDTO;
 import com.ait.app.entity.Role;
-import com.ait.app.exception.DuplicateRoleException;
 import com.ait.app.repository.RoleRepository;
 import com.ait.app.service.RoleService;
 
@@ -19,7 +18,7 @@ public class RoleServiceimpl implements RoleService {
 	@Override
 	public RoleResponseDTO createRole(RoleRequestDTO dto) {
 		if (roleRepository.existsByName(dto.getName())) {
-			throw new DuplicateRoleException("Role with name '" + dto.getName() + "' already exists");
+			throw new RuntimeException("Role with name '" + dto.getName() + "' already exists");
 		}
 
 		Role role = new Role();
