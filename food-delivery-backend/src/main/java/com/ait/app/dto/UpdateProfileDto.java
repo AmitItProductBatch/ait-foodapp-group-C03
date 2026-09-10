@@ -1,42 +1,28 @@
 package com.ait.app.dto;
 
-public class UserResponseDTO {
+public class UpdateProfileDto {
 
 	private String name;
-	private String email;
 	private String phonenumber;
-	private String role;
-
+	private AdressUpdateDto adressUpdateDto;
+	
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public String getPhonenumber() {
 		return phonenumber;
 	}
-
 	public void setPhonenumber(String phonenumber) {
 		this.phonenumber = phonenumber;
 	}
-
-	public String getRole() {
-		return role;
+	public AdressUpdateDto getAdressUpdateDto() {
+		return adressUpdateDto;
 	}
-
-	public void setRole(String role) {
-		this.role = role;
+	public void setAdressUpdateDto(AdressUpdateDto adressUpdateDto) {
+		this.adressUpdateDto = adressUpdateDto;
 	}
-
+	
 }

@@ -3,13 +3,9 @@ package com.ait.app.dto;
 public class UserRequestDTO {
 
 	private String name;
-
 	private String email;
-
 	private String password;
-
 	private String phonenumber;
-
 	private String role;
 
 	public String getName() {

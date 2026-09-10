@@ -16,11 +16,8 @@ public class AddressController {
 	@Autowired
 	AddressService addressService;
 
-
 	@PostMapping("/api/users/{userId}/addresses")
-	public Address createAddress(
-			@PathVariable int userId,
-			@RequestBody AddressRequestDTO dto) {
+	public Address createAddress(@PathVariable int userId, @RequestBody AddressRequestDTO dto) {
 
 		return addressService.createAddress(userId, dto);
 	}
