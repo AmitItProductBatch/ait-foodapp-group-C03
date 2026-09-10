@@ -1,15 +1,12 @@
+
 package com.ait.app.dto;
 
 public class RestaurantRequestDTO {
 
 	private String name;
-
 	private String address;
-
 	private String cuisine;
-
 	private String contact;
-
 	private Integer ownerId;
 
 	public RestaurantRequestDTO() {

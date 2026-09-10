@@ -3,24 +3,23 @@ package com.ait.app.dto;
 public class RestaurantResponseDTO {
 
     private int restaurantId;
-
     private int ownerId;
-
     private String message;
-
     private String status;
+
 
     public RestaurantResponseDTO() {
     }
 
-    public RestaurantResponseDTO(int restaurantId, int ownerId,
-                                 String message, String status) {
+
+    public RestaurantResponseDTO(int restaurantId,int ownerId,String message,String status) {
 
         this.restaurantId = restaurantId;
         this.ownerId = ownerId;
         this.message = message;
         this.status = status;
     }
+
 
     public int getRestaurantId() {
         return restaurantId;
@@ -30,6 +29,7 @@ public class RestaurantResponseDTO {
         this.restaurantId = restaurantId;
     }
 
+
     public int getOwnerId() {
         return ownerId;
     }
@@ -38,6 +38,7 @@ public class RestaurantResponseDTO {
         this.ownerId = ownerId;
     }
 
+
     public String getMessage() {
         return message;
     }
@@ -45,6 +46,7 @@ public class RestaurantResponseDTO {
     public void setMessage(String message) {
         this.message = message;
     }
+
 
     public String getStatus() {
         return status;
