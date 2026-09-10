@@ -24,6 +24,7 @@ public class UserServiceimpl implements Userservice {
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
         user.setPhonenumber(dto.getPhonenumber());
+        user.setRole(dto.getRole());
 
         return repository.save(user);
     }

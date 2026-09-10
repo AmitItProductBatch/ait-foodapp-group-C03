@@ -6,6 +6,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,6 +28,10 @@ public class User {
 	private String email;
 	private String password;
 	private String phonenumber;
+	private String role;
+
+	@Column(nullable = false)
+	private Boolean active = true;
 
 	@JsonIgnore
 	@ManyToMany
@@ -79,6 +84,22 @@ public class User {
 
 	public void setPhonenumber(String phonenumber) {
 		this.phonenumber = phonenumber;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 
 	public Set<Role> getRoles() {
