@@ -1,9 +1,6 @@
-
 package com.ait.app.entity;
 
 import java.util.List;
-
-import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -25,15 +22,14 @@ public class User {
 	private int id;
 	private String name;
 	private String email;
+	@JsonIgnore
 	private String password;
 	private String phonenumber;
 	private String role;
 
 	@Column(nullable = false)
-
 	private Boolean active = true;
 
-	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Address> addresses;
 
