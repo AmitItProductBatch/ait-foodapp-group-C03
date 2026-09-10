@@ -8,8 +8,6 @@ public class UserResponseDTO {
 
 	private String phonenumber;
 
-	private String role;
-
 	public String getName() {
 		return name;
 	}
@@ -32,14 +30,6 @@ public class UserResponseDTO {
 
 	public void setPhonenumber(String phonenumber) {
 		this.phonenumber = phonenumber;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
 	}
 
 }
