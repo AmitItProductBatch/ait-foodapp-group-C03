@@ -9,7 +9,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="addresses")
+@Table(name = "addresses")
 public class Address {
 
 	@Id
@@ -25,7 +25,7 @@ public class Address {
 	private String deliveryInstructions;
 
 	@ManyToOne
-	@JoinColumn(name="user_id")
+	@JoinColumn(name = "user_id")
 	private User user;
 
 	public int getId() {

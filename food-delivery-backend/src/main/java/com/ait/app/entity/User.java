@@ -1,6 +1,9 @@
+
 package com.ait.app.entity;
 
 import java.util.List;
+
+import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -14,33 +17,31 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-
 	private String name;
 	private String email;
 	private String password;
 	private String phonenumber;
 	private String role;
-	
-    @Column(nullable = false)
-	private boolean active = true;
-	
-	
+
+	@Column(nullable = false)
+
+	private Boolean active = true;
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Address> addresses;
 
-	public boolean isActive() {
-		return active;
-	}
+	@JsonIgnore
+	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+	private List<Restaurant> restaurants;
 
-	public void setActive(boolean active) {
-		this.active = active;
+	public User() {
 	}
 
 	public int getId() {
@@ -91,6 +92,14 @@ public class User {
 		this.role = role;
 	}
 
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
 	public List<Address> getAddresses() {
 		return addresses;
 	}
@@ -99,4 +108,11 @@ public class User {
 		this.addresses = addresses;
 	}
 
+	public List<Restaurant> getRestaurants() {
+		return restaurants;
+	}
+
+	public void setRestaurants(List<Restaurant> restaurants) {
+		this.restaurants = restaurants;
+	}
 }

@@ -1,7 +1,7 @@
+
 package com.ait.app.entity;
 
-
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,19 +18,27 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String address;
 
+    @Column(nullable = false)
     private String cuisine;
 
+    @Column(nullable = false)
     private String contact;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
+    @Column(nullable = false)
     private String status = "PENDING";
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean active = false;
 
     public Restaurant() {
     }
@@ -90,4 +98,13 @@ public class Restaurant {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 }
+

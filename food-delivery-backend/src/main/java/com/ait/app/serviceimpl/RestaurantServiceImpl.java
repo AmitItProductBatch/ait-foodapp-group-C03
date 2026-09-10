@@ -1,3 +1,4 @@
+
 package com.ait.app.serviceimpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,42 +14,60 @@ import com.ait.app.service.RestaurantService;
 
 @Service
 public class RestaurantServiceImpl implements RestaurantService {
-	@Autowired
-	RestaurantRepository restaurantRepository;
-	@Autowired
-	UserRepository userRepository;
 
-	@Override
-	public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO requestDTO) {
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
-		User owner = userRepository.findById(requestDTO.getOwnerId()).orElseThrow(() -> new RuntimeException("Owner not found"));
+    @Autowired
+    private UserRepository userRepository;
 
-		if (!"PARTNER".equalsIgnoreCase(owner.getRole())) {
+    @Override
+    public RestaurantResponseDTO createRestaurant(
+            RestaurantRequestDTO requestDTO) {
 
-			throw new RuntimeException("Owner must have PARTNER role");
-		}
+        if (requestDTO.getOwnerId() == null) {
+            throw new RuntimeException("Owner ID is required");
+        }
 
-		if (!owner.isActive()) {
+        User owner = userRepository
+                .findById(requestDTO.getOwnerId())
+                .orElseThrow(() ->
+                        new RuntimeException("Owner not found"));
 
-			throw new RuntimeException("Owner account is not active");
-		}
+        if (owner.getRole() == null ||
+                !"PARTNER".equalsIgnoreCase(owner.getRole())) {
 
-		Restaurant restaurant = new Restaurant();
+            throw new RuntimeException(
+                    "Owner must have PARTNER role");
+        }
 
-		restaurant.setName(requestDTO.getName());
+        if (!Boolean.TRUE.equals(owner.getActive())) {
 
-		restaurant.setAddress(requestDTO.getAddress());
+            throw new RuntimeException(
+                    "Owner account is not active");
+        }
 
-		restaurant.setCuisine(requestDTO.getCuisine());
+        Restaurant restaurant = new Restaurant();
 
-		restaurant.setContact(requestDTO.getContact());
+        restaurant.setName(requestDTO.getName());
+        restaurant.setAddress(requestDTO.getAddress());
+        restaurant.setCuisine(requestDTO.getCuisine());
+        restaurant.setContact(requestDTO.getContact());
 
-		restaurant.setOwner(owner);
+        restaurant.setOwner(owner);
 
-		restaurant.setStatus("PENDING");
+        restaurant.setStatus("PENDING");
+        restaurant.setActive(false);
 
-		Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+        Restaurant savedRestaurant =
+                restaurantRepository.save(restaurant);
 
-		return new RestaurantResponseDTO(savedRestaurant.getId(), owner.getId(), "Restaurant created successfully",savedRestaurant.getStatus());
-	}
+        return new RestaurantResponseDTO(
+                savedRestaurant.getId(),
+                owner.getId(),
+                "Restaurant created successfully",
+                savedRestaurant.getStatus()
+        );
+    }
 }
+

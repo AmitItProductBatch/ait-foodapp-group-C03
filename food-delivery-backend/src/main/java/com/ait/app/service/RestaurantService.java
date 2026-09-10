@@ -5,6 +5,5 @@ import com.ait.app.dto.RestaurantResponseDTO;
 
 public interface RestaurantService {
 
-	RestaurantResponseDTO createRestaurant(RestaurantRequestDTO requestDTO);
-
+    RestaurantResponseDTO createRestaurant(RestaurantRequestDTO requestDTO);
 }
