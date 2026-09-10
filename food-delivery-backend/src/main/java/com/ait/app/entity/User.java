@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,22 +14,31 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-
 	private String name;
 	private String email;
 	@JsonIgnore
 	private String password;
 	private String phonenumber;
 	private String role;
-	
+
+	@Column(nullable = false)
+	private Boolean active = true;
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Address> addresses;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+	private List<Restaurant> restaurants;
+
+	public User() {
+	}
 
 	public int getId() {
 		return id;
@@ -78,6 +88,14 @@ public class User {
 		this.role = role;
 	}
 
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
 	public List<Address> getAddresses() {
 		return addresses;
 	}
@@ -86,4 +104,11 @@ public class User {
 		this.addresses = addresses;
 	}
 
+	public List<Restaurant> getRestaurants() {
+		return restaurants;
+	}
+
+	public void setRestaurants(List<Restaurant> restaurants) {
+		this.restaurants = restaurants;
+	}
 }

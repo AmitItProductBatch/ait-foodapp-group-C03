@@ -3,19 +3,12 @@ package com.ait.app.dto;
 public class AddressRequestDTO {
 
 	private String addressLabel;
-
 	private String streetAddress;
-
 	private String apartment;
-
 	private String landmark;
-
 	private String city;
-
 	private String postalCode;
-
 	private String deliveryInstructions;
-
 
 	public String getAddressLabel() {
 		return addressLabel;

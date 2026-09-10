@@ -8,9 +8,7 @@ import com.ait.app.entity.User;
 public interface Userservice {
 
     User Registeruser(UserRequestDTO dto);
-
     User login(LoginRequestDTO dto);
-
 	User getUser(int id);
 	
 	User updateProfile(int id, UpdateProfileDto dto);

@@ -41,8 +41,7 @@ public class UserServiceimpl implements Userservice {
     @Override
     public User login(LoginRequestDTO dto) {
 
-        User user = repository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+        User user = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
         if (!user.getPassword().equals(dto.getPassword())) {
             throw new RuntimeException("Invalid email or password");
