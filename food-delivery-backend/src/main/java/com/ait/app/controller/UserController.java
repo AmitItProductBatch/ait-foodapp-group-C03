@@ -1,4 +1,3 @@
-
 package com.ait.app.controller;
 
 import org.springframework.http.ResponseEntity;
@@ -20,46 +19,35 @@ import com.ait.app.service.Userservice;
 @RequestMapping("/api/users")
 public class UserController {
 
+	private Userservice userService;
 
-private Userservice userService;
+	public UserController(Userservice userService) {
+		this.userService = userService;
+	}
 
-public UserController(Userservice userService) {
-    this.userService = userService;
-}
+	@PostMapping("/register")
+	public ResponseEntity<User> registerUser(@RequestBody UserRequestDTO dto) {
+		User user = userService.Registeruser(dto);
+		return ResponseEntity.ok(user);
+	}
 
-// Register User
-@PostMapping("/register")
-public ResponseEntity<User> registerUser(
-        @RequestBody UserRequestDTO dto) {
+	@PostMapping("/login")
+	public ResponseEntity<User> login(@RequestBody LoginRequestDTO dto) {
+		User user = userService.login(dto);
+		return ResponseEntity.ok(user);
+	}
 
-    User user = userService.Registeruser(dto);
+	@GetMapping("/{id}")
+	public ResponseEntity<User> getUser(@PathVariable int id) {
+		return ResponseEntity.ok(userService.getUser(id));
+	}
 
-    return ResponseEntity.ok(user);
-}
-
-// Login User
-@PostMapping("/login")
-public ResponseEntity<User> login(
-        @RequestBody LoginRequestDTO dto) {
-
-    User user = userService.login(dto);
-
-    return ResponseEntity.ok(user);
-}
-
-@GetMapping("/{id}")
-public ResponseEntity<User> getUser(@PathVariable int id) {
-    return ResponseEntity.ok(userService.getUser(id));
-}
-
-   @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
-            @PathVariable int id,
-            @RequestBody UpdateProfileDto dto) {
-
-        User user = userService.updateProfile(id, dto);
-
-        return ResponseEntity.ok(user);
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<User> updateUser(
+			@PathVariable int id,
+			@RequestBody UpdateProfileDto dto) {
+		User user = userService.updateProfile(id, dto);
+		return ResponseEntity.ok(user);
+	}
 
 }

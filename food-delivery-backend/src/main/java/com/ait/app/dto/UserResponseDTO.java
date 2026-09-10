@@ -3,11 +3,8 @@ package com.ait.app.dto;
 public class UserResponseDTO {
 
 	private String name;
-
 	private String email;
-
 	private String phonenumber;
-
 	private String role;
 
 	public String getName() {
