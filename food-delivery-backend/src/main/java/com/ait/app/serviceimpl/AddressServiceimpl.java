@@ -25,8 +25,8 @@ public class AddressServiceimpl implements AddressService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
+		Address address = new Address();
         address.setAddressLabel(dto.getAddressLabel());
         address.setStreetAddress(dto.getStreetAddress());
         address.setApartment(dto.getApartment());
