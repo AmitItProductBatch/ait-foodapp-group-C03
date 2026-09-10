@@ -17,15 +17,15 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-
 	private String name;
 	private String email;
+	@JsonIgnore
 	private String password;
 	private String phonenumber;
 	private String role;
@@ -45,6 +45,13 @@ public class User {
 	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<Address> addresses;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+	private List<Restaurant> restaurants;
+
+	public User() {
+	}
 
 	public int getId() {
 		return id;
@@ -118,4 +125,11 @@ public class User {
 		this.addresses = addresses;
 	}
 
+	public List<Restaurant> getRestaurants() {
+		return restaurants;
+	}
+
+	public void setRestaurants(List<Restaurant> restaurants) {
+		this.restaurants = restaurants;
+	}
 }
