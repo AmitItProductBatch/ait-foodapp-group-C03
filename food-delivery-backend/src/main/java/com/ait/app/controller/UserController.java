@@ -13,40 +13,36 @@ import com.ait.app.service.Userservice;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final Userservice userService;
+	private Userservice userService;
 
-    public UserController(Userservice userService) {
-        this.userService = userService;
-    }
+	public UserController(Userservice userService) {
+		this.userService = userService;
+	}
 
-    @PostMapping("/register")
-    public ResponseEntity<User> registerUser(
-            @RequestBody UserRequestDTO dto) {
+	@PostMapping("/register")
+	public ResponseEntity<User> registerUser(@RequestBody UserRequestDTO dto) {
+		User user = userService.Registeruser(dto);
+		return ResponseEntity.ok(user);
+	}
 
-        return ResponseEntity.ok(userService.Registeruser(dto));
-    }
+	@PostMapping("/login")
+	public ResponseEntity<User> login(@RequestBody LoginRequestDTO dto) {
+		User user = userService.login(dto);
+		return ResponseEntity.ok(user);
+	}
 
-    @PostMapping("/login")
-    public ResponseEntity<User> login(
-            @RequestBody LoginRequestDTO dto) {
+	@GetMapping("/{id}")
+	public ResponseEntity<User> getUser(@PathVariable int id) {
+		return ResponseEntity.ok(userService.getUser(id));
+	}
 
-        return ResponseEntity.ok(userService.login(dto));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(
-            @PathVariable int id) {
-
-        return ResponseEntity.ok(userService.getUser(id));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
-            @PathVariable int id,
-            @RequestBody UpdateProfileDto dto) {
-
-        return ResponseEntity.ok(userService.updateProfile(id, dto));
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<User> updateUser(
+			@PathVariable int id,
+			@RequestBody UpdateProfileDto dto) {
+		User user = userService.updateProfile(id, dto);
+		return ResponseEntity.ok(user);
+	}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(

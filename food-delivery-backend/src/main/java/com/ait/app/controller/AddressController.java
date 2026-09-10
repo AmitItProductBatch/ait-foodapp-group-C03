@@ -8,17 +8,15 @@ import com.ait.app.entity.Address;
 import com.ait.app.service.AddressService;
 
 @RestController
-@RequestMapping("/api/users")
 public class AddressController {
 
     @Autowired
     private AddressService addressService;
 
-    @PostMapping("/{userId}/addresses")
-    public Address createAddress(
-            @PathVariable int userId,
-            @RequestBody AddressRequestDTO dto) {
+	@PostMapping("/api/users/{userId}/addresses")
+	public Address createAddress(@PathVariable int userId, @RequestBody AddressRequestDTO dto) {
 
-        return addressService.createAddress(userId, dto);
-    }
+		return addressService.createAddress(userId, dto);
+	}
+
 }

@@ -45,13 +45,7 @@ public class UserServiceimpl implements Userservice {
     @Override
     public User login(LoginRequestDTO dto) {
 
-        User user = repository.findByEmail(dto.getEmail())
-                .orElseThrow(() ->
-                        new RuntimeException("Invalid email or password"));
-
-        if (user.isDeleted()) {
-            throw new RuntimeException("User account is deleted");
-        }
+        User user = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
         if (!user.getPassword().equals(dto.getPassword())) {
             throw new RuntimeException("Invalid email or password");
@@ -70,6 +64,73 @@ public class UserServiceimpl implements Userservice {
                         new RuntimeException("User not found"));
     }
 
+	@Override
+	public User updateProfile(int id, UpdateProfileDto dto) {
+		Optional<User> optionaluser = repository.findById(id);
+		
+		if(optionaluser.isEmpty()) {
+			throw new RuntimeException("User not found");
+		}
+		 User user = optionaluser.get();
+		 
+		 if (dto.getName() != null) {        
+			 user.setName(dto.getName());   
+			 }  
+		 
+		 if (dto.getPhonenumber() != null) {        
+			 user.setPhonenumber(dto.getPhonenumber());   
+			 }
+		 
+		 if (dto.getName() != null) {        
+			 user.setName(dto.getName());   
+			 }  
+		 if (dto.getAdressUpdateDto() != null) {        
+			 
+			 
+			    AdressUpdateDto addressDto = dto.getAdressUpdateDto(); 
+			 
+			    Optional<Address> optionalAddress = 
+			    		addressRepository.findByIdAndUserId(addressDto.getId(), id);			 
+			    if (optionalAddress.isEmpty()) { 
+			        throw new RuntimeException("Address not found"); 
+			    } 
+			 
+			    Address address = optionalAddress.get(); 
+			 
+			    if (addressDto.getAddressLabel() != null) {
+			        address.setAddressLabel(addressDto.getAddressLabel());
+			    }
+
+			    if (addressDto.getStreetAddress() != null) { 
+			        address.setStreetAddress(addressDto.getStreetAddress()); 
+			    }
+
+			    if (addressDto.getApartment() != null) {
+			        address.setApartment(addressDto.getApartment());
+			    }
+
+			    if (addressDto.getLandmark() != null) {
+			        address.setLandmark(addressDto.getLandmark());
+			    }
+			 
+			    if (addressDto.getCity() != null) { 
+			        address.setCity(addressDto.getCity()); 
+			    } 
+			 
+			    if (addressDto.getPostalCode() != null) { 
+			        address.setPostalCode(addressDto.getPostalCode()); 
+			    }
+
+			    if (addressDto.getDeliveryInstructions() != null) {
+			        address.setDeliveryInstructions(addressDto.getDeliveryInstructions());
+			    }
+			 
+			    addressRepository.save(address); 
+			} 
+			 
+			return repository.save(user);   
+			 
+	}
 
     // UPDATE PROFILE
     @Override

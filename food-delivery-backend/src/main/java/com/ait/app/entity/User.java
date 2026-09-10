@@ -5,32 +5,41 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+	private String name;
+	private String email;
+	@JsonIgnore
+	private String password;
+	private String phonenumber;
+	private String role;
 
-    private String name;
-    private String email;
+	@Column(nullable = false)
+	private Boolean active = true;
 
-    @JsonIgnore
-    private String password;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Address> addresses;
 
-    private String phonenumber;
-    private String role;
+	@JsonIgnore
+	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+	private List<Restaurant> restaurants;
 
-    private boolean deleted = false;
-
-    private LocalDateTime deletedAt;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Address> addresses;
+	public User() {
+	}
 
 	public int getId() {
 		return id;
@@ -80,20 +89,12 @@ public class User {
 		this.role = role;
 	}
 
-	public boolean isDeleted() {
-		return deleted;
+	public Boolean getActive() {
+		return active;
 	}
 
-	public void setDeleted(boolean deleted) {
-		this.deleted = deleted;
-	}
-
-	public LocalDateTime getDeletedAt() {
-		return deletedAt;
-	}
-
-	public void setDeletedAt(LocalDateTime deletedAt) {
-		this.deletedAt = deletedAt;
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 
 	public List<Address> getAddresses() {
@@ -104,5 +105,11 @@ public class User {
 		this.addresses = addresses;
 	}
 
-    
+	public List<Restaurant> getRestaurants() {
+		return restaurants;
+	}
+
+	public void setRestaurants(List<Restaurant> restaurants) {
+		this.restaurants = restaurants;
+	}
 }
