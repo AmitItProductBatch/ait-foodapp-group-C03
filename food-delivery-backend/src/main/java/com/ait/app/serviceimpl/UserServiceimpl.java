@@ -79,17 +79,17 @@ public class UserServiceimpl implements Userservice {
 
         User user = optionalUser.get();
 
-        // Update user name
+       
         if (dto.getName() != null) {
             user.setName(dto.getName());
         }
 
-        // Update phone number
+       
         if (dto.getPhonenumber() != null) {
             user.setPhonenumber(dto.getPhonenumber());
         }
 
-        // Update address
+       
         if (dto.getAdressUpdateDto() != null) {
 
             AdressUpdateDto addressDto = dto.getAdressUpdateDto();
