@@ -23,7 +23,7 @@ public class UserServiceimpl implements Userservice {
 
     @Autowired
     AddressRepository addressRepository;
-    
+
     @Override
     public User Registeruser(UserRequestDTO dto) {
 
@@ -41,7 +41,13 @@ public class UserServiceimpl implements Userservice {
     @Override
     public User login(LoginRequestDTO dto) {
 
-        User user = repository.findByEmail(dto.getEmail()).orElseThrow(() -> new RuntimeException("Invalid email or password"));
+        Optional<User> optionalUser = repository.findByEmail(dto.getEmail());
+
+        if (!optionalUser.isPresent()) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        User user = optionalUser.get();
 
         if (!user.getPassword().equals(dto.getPassword())) {
             throw new RuntimeException("Invalid email or password");
@@ -52,75 +58,84 @@ public class UserServiceimpl implements Userservice {
 
     @Override
     public User getUser(int id) {
-        return repository.findById(id).get();
+
+        Optional<User> optionalUser = repository.findById(id);
+
+        if (!optionalUser.isPresent()) {
+            throw new RuntimeException("User not found");
+        }
+
+        return optionalUser.get();
     }
 
-	@Override
-	public User updateProfile(int id, UpdateProfileDto dto) {
-		Optional<User> optionaluser = repository.findById(id);
-		
-		if(optionaluser.isEmpty()) {
-			throw new RuntimeException("User not found");
-		}
-		 User user = optionaluser.get();
-		 
-		 if (dto.getName() != null) {        
-			 user.setName(dto.getName());   
-			 }  
-		 
-		 if (dto.getPhonenumber() != null) {        
-			 user.setPhonenumber(dto.getPhonenumber());   
-			 }
-		 
-		 if (dto.getName() != null) {        
-			 user.setName(dto.getName());   
-			 }  
-		 if (dto.getAdressUpdateDto() != null) {        
-			 
-			 
-			    AdressUpdateDto addressDto = dto.getAdressUpdateDto(); 
-			 
-			    Optional<Address> optionalAddress = 
-			    		addressRepository.findByIdAndUserId(addressDto.getId(), id);			 
-			    if (optionalAddress.isEmpty()) { 
-			        throw new RuntimeException("Address not found"); 
-			    } 
-			 
-			    Address address = optionalAddress.get(); 
-			 
-			    if (addressDto.getAddressLabel() != null) {
-			        address.setAddressLabel(addressDto.getAddressLabel());
-			    }
+    @Override
+    public User updateProfile(int id, UpdateProfileDto dto) {
 
-			    if (addressDto.getStreetAddress() != null) { 
-			        address.setStreetAddress(addressDto.getStreetAddress()); 
-			    }
+        Optional<User> optionalUser = repository.findById(id);
 
-			    if (addressDto.getApartment() != null) {
-			        address.setApartment(addressDto.getApartment());
-			    }
+        if (!optionalUser.isPresent()) {
+            throw new RuntimeException("User not found");
+        }
 
-			    if (addressDto.getLandmark() != null) {
-			        address.setLandmark(addressDto.getLandmark());
-			    }
-			 
-			    if (addressDto.getCity() != null) { 
-			        address.setCity(addressDto.getCity()); 
-			    } 
-			 
-			    if (addressDto.getPostalCode() != null) { 
-			        address.setPostalCode(addressDto.getPostalCode()); 
-			    }
+        User user = optionalUser.get();
 
-			    if (addressDto.getDeliveryInstructions() != null) {
-			        address.setDeliveryInstructions(addressDto.getDeliveryInstructions());
-			    }
-			 
-			    addressRepository.save(address); 
-			} 
-			 
-			return repository.save(user);   
-			 
-	}
+       
+        if (dto.getName() != null) {
+            user.setName(dto.getName());
+        }
 
+       
+        if (dto.getPhonenumber() != null) {
+            user.setPhonenumber(dto.getPhonenumber());
+        }
+
+        
+        if (dto.getAdressUpdateDto() != null) {
+
+            AdressUpdateDto addressDto = dto.getAdressUpdateDto();
+
+            Optional<Address> optionalAddress =
+                    addressRepository.findByIdAndUserId(
+                            addressDto.getId(), id);
+
+            if (!optionalAddress.isPresent()) {
+                throw new RuntimeException("Address not found");
+            }
+
+            Address address = optionalAddress.get();
+
+            if (addressDto.getAddressLabel() != null) {
+                address.setAddressLabel(addressDto.getAddressLabel());
+            }
+
+            if (addressDto.getStreetAddress() != null) {
+                address.setStreetAddress(addressDto.getStreetAddress());
+            }
+
+            if (addressDto.getApartment() != null) {
+                address.setApartment(addressDto.getApartment());
+            }
+
+            if (addressDto.getLandmark() != null) {
+                address.setLandmark(addressDto.getLandmark());
+            }
+
+            if (addressDto.getCity() != null) {
+                address.setCity(addressDto.getCity());
+            }
+
+            if (addressDto.getPostalCode() != null) {
+                address.setPostalCode(addressDto.getPostalCode());
+            }
+
+            if (addressDto.getDeliveryInstructions() != null) {
+                address.setDeliveryInstructions(
+                        addressDto.getDeliveryInstructions());
+            }
+
+            addressRepository.save(address);
+        }
+
+        return repository.save(user);
+    }
 }
