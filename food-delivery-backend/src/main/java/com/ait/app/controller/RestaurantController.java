@@ -12,6 +12,7 @@ import com.ait.app.dto.RestaurantRequestDTO;
 import com.ait.app.dto.RestaurantResponseDTO;
 import com.ait.app.service.RestaurantService;
 
+
 @RestController
 @RequestMapping("/api/restaurants")
 public class RestaurantController {
@@ -21,15 +22,11 @@ public class RestaurantController {
 
 
     @PostMapping
-    public ResponseEntity<RestaurantResponseDTO> createRestaurant(
-           
-    		@RequestBody RestaurantRequestDTO requestDTO) {
+    public ResponseEntity<RestaurantResponseDTO> createRestaurant(@RequestBody RestaurantRequestDTO requestDTO) 
+    {
 
-        RestaurantResponseDTO response =
-                restaurantService.createRestaurant(requestDTO);
+        RestaurantResponseDTO response = restaurantService.createRestaurant(requestDTO);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity .status(HttpStatus.CREATED).body(response);
     }
 }
