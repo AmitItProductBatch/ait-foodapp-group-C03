@@ -12,8 +12,6 @@ import com.ait.app.dto.RestaurantRequestDTO;
 import com.ait.app.dto.RestaurantResponseDTO;
 import com.ait.app.service.RestaurantService;
 
-//import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/api/restaurants")
 public class RestaurantController {
@@ -24,7 +22,7 @@ public class RestaurantController {
 
     @PostMapping
     public ResponseEntity<RestaurantResponseDTO> createRestaurant(
-           // @Valid 
+           
     		@RequestBody RestaurantRequestDTO requestDTO) {
 
         RestaurantResponseDTO response =
