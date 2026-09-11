@@ -25,9 +25,11 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String name;
+	@Column(nullable = false, unique = true) 
 	private String email;
 	@JsonIgnore
 	private String password;
+	@Column(nullable = false, unique = true) 
 	private String phonenumber;
 	private String role;
 

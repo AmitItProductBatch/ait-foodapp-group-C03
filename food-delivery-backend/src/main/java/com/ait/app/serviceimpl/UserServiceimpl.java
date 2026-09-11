@@ -1,5 +1,7 @@
 package com.ait.app.serviceimpl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,18 @@ public class UserServiceimpl implements Userservice {
     
     @Override
     public User Registeruser(UserRequestDTO dto) {
+    	
+        Optional<User> emailUser = repository.findByEmail(dto.getEmail());
+
+        if (emailUser.isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+        Optional<User> phoneUser =repository.findByPhonenumber(dto.getPhonenumber());
+
+        if (phoneUser.isPresent()) {
+            throw new RuntimeException("Mobile number already exists");
+        }
+
 
         User user = new User();
 
@@ -34,6 +48,8 @@ public class UserServiceimpl implements Userservice {
         user.setPassword(dto.getPassword());
         user.setPhonenumber(dto.getPhonenumber());
         user.setRole(dto.getRole());
+        user.setActive(true);
+
 
         return repository.save(user);
     }
@@ -43,24 +59,25 @@ public class UserServiceimpl implements Userservice {
     @Override
     public User login(LoginRequestDTO dto) {
 
-        User user = repository.findByEmail(dto.getEmail())
-                .orElseThrow(() ->
-                        new RuntimeException("Invalid email or password"));
+    	Optional<User> optionalUser =repository.findByEmail(dto.getEmail());
 
+    	User user;
+
+    	if (optionalUser.isPresent()) {
+    	    user = optionalUser.get();
+    	} else {
+    	    throw new RuntimeException("Invalid email or password");
+    	}
 
       
-        if (!user.getActive()) {
-            throw new RuntimeException("User account is deleted");
-        }
+    	if (user.getActive() == null || !user.getActive()) {
+    	    throw new RuntimeException("User account is deleted");
+    	}
 
 
-        
-        if (!user.getPassword().equals(dto.getPassword())) {
-
-            throw new RuntimeException("Invalid email or password");
-        }
-
-
+    	if (!user.getPassword().equals(dto.getPassword())) {
+    	    throw new RuntimeException("Invalid email or password");
+    	}
         return user;
     }
 
@@ -68,21 +85,27 @@ public class UserServiceimpl implements Userservice {
     @Override
     public User getUser(int id) {
 
-        return repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
-    }
+        Optional<User> optionalUser = repository.findById(id);
 
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
 
    
     @Override
     public User updateProfile(int id, UpdateProfileDto dto) {
+    	Optional<User> optionalUser = repository.findById(id);
 
-        // Find user
-        User user = repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+    	User user;
 
+    	if (optionalUser.isPresent()) {
+    	    user = optionalUser.get();
+    	} else {
+    	    throw new RuntimeException("User not found");
+    	}
 
         if (dto.getName() != null) {
 
@@ -92,79 +115,77 @@ public class UserServiceimpl implements Userservice {
 
         if (dto.getPhonenumber() != null) {
 
+            boolean phoneExists =repository.existsByPhonenumberAndIdNot( dto.getPhonenumber(),id);
+
+            if (phoneExists) {
+                throw new RuntimeException("Mobile number already exists");
+            }
+
             user.setPhonenumber(dto.getPhonenumber());
         }
 
-
         if (dto.getAdressUpdateDto() != null) {
 
-            AdressUpdateDto addressDto =
-                    dto.getAdressUpdateDto();
+            AdressUpdateDto addressDto = dto.getAdressUpdateDto();
 
 
           
-            Address address = addressRepository
-                    .findByIdAndUserId(
-                            addressDto.getId(),
-                            id
-                    )
-                    .orElseThrow(() ->
-                            new RuntimeException("Address not found"));
+            Optional<Address> optionalAddress = addressRepository.findByIdAndUserId(addressDto.getId(), id);
 
+            Address address;
 
-          
+            if (optionalAddress.isPresent()) {
+                address = optionalAddress.get();
+            } else {
+                throw new RuntimeException("Address not found");
+            }
+            
+            
             if (addressDto.getAddressLabel() != null) {
 
-                address.setAddressLabel(
-                        addressDto.getAddressLabel());
+                address.setAddressLabel(addressDto.getAddressLabel());
             }
 
 
             
             if (addressDto.getStreetAddress() != null) {
 
-                address.setStreetAddress(
-                        addressDto.getStreetAddress());
+                address.setStreetAddress(addressDto.getStreetAddress());
             }
 
 
            
             if (addressDto.getApartment() != null) {
 
-                address.setApartment(
-                        addressDto.getApartment());
+                address.setApartment(addressDto.getApartment());
             }
 
 
             
             if (addressDto.getLandmark() != null) {
 
-                address.setLandmark(
-                        addressDto.getLandmark());
+                address.setLandmark(addressDto.getLandmark());
             }
 
 
           
             if (addressDto.getCity() != null) {
 
-                address.setCity(
-                        addressDto.getCity());
+                address.setCity(addressDto.getCity());
             }
 
 
           
             if (addressDto.getPostalCode() != null) {
 
-                address.setPostalCode(
-                        addressDto.getPostalCode());
+                address.setPostalCode(addressDto.getPostalCode());
             }
 
 
       
             if (addressDto.getDeliveryInstructions() != null) {
 
-                address.setDeliveryInstructions(
-                        addressDto.getDeliveryInstructions());
+                address.setDeliveryInstructions(addressDto.getDeliveryInstructions());
             }
 
 
@@ -178,18 +199,20 @@ public class UserServiceimpl implements Userservice {
     }
 
   @Override
-    public void DeletUser(int id) {
+  public void DeletUser(int id) {
 
-        User user = repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+	    Optional<User> optionalUser = repository.findById(id);
 
+	    User user;
 
-    
-        user.setActive(false);
+	    if (optionalUser.isPresent()) {
+	        user = optionalUser.get();
+	    } else {
+	        throw new RuntimeException("User not found");
+	    }
 
+	    user.setActive(false);
 
-     
-        repository.save(user);
-    }
+	    repository.save(user);
+	}
 }
