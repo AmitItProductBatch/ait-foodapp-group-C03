@@ -11,8 +11,6 @@ import com.ait.app.dto.RoleRequestDTO;
 import com.ait.app.dto.RoleResponseDTO;
 import com.ait.app.service.RoleService;
 
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/api/roles")
 public class RoleController {
@@ -24,7 +22,7 @@ public class RoleController {
 	}
 
 	@PostMapping
-	public ResponseEntity<RoleResponseDTO> createRole(@Valid @RequestBody RoleRequestDTO dto) {
+	public ResponseEntity<RoleResponseDTO> createRole(@RequestBody RoleRequestDTO dto) {
 		RoleResponseDTO response = roleService.createRole(dto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
