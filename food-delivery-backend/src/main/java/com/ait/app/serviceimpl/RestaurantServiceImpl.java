@@ -1,11 +1,14 @@
 
 package com.ait.app.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ait.app.dto.RestaurantListResponseDTO;
 import com.ait.app.dto.RestaurantRequestDTO;
 import com.ait.app.dto.RestaurantResponseDTO;
 import com.ait.app.entity.Restaurant;
@@ -17,59 +20,90 @@ import com.ait.app.service.RestaurantService;
 @Service
 public class RestaurantServiceImpl implements RestaurantService {
 
-    @Autowired
-    private RestaurantRepository restaurantRepository;
+	@Autowired
+	private RestaurantRepository restaurantRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-    @Override
-    public RestaurantResponseDTO createRestaurant( RestaurantRequestDTO requestDTO) {
+	@Override
+	public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO requestDTO) {
 
-        if (requestDTO.getOwnerId() == null) {
-            throw new RuntimeException("Owner ID is required");
-        }
+		if (requestDTO.getOwnerId() == null) {
+			throw new RuntimeException("Owner ID is required");
+		}
 
-        int ownerId = requestDTO.getOwnerId();
+		User owner = userRepository.findById(requestDTO.getOwnerId())
+				.orElseThrow(() -> new RuntimeException("Owner not found"));
 
-        Optional<User> optionalUser = userRepository.findById(ownerId);
+		if (owner.getRole() == null || !"PARTNER".equalsIgnoreCase(owner.getRole())) {
 
-        User owner;
+			throw new RuntimeException("Owner must have PARTNER role");
+		}
 
-        if (optionalUser.isPresent()) {
-            owner = optionalUser.get();
-        } else {
-            throw new RuntimeException("Owner not found");
-        }
+		if (!Boolean.TRUE.equals(owner.getActive())) {
 
-        if (owner.getRole() == null ||!"PARTNER".equalsIgnoreCase(owner.getRole())) {
+			throw new RuntimeException("Owner account is not active");
+		}
 
-            throw new RuntimeException("Owner must have PARTNER role");
-        }
+		Restaurant restaurant = new Restaurant();
 
-        if (!Boolean.TRUE.equals(owner.getActive())) {
+		restaurant.setName(requestDTO.getName());
+		restaurant.setAddress(requestDTO.getAddress());
+		restaurant.setCuisine(requestDTO.getCuisine());
+		restaurant.setContact(requestDTO.getContact());
 
-            throw new RuntimeException("Owner account is not active");
-        }
+		restaurant.setOwner(owner);
 
-        Restaurant restaurant = new Restaurant();
+		restaurant.setStatus("PENDING");
+		restaurant.setActive(false);
 
-        restaurant.setName(requestDTO.getName());
-        restaurant.setAddress(requestDTO.getAddress());
-        restaurant.setCuisine(requestDTO.getCuisine());
-        restaurant.setContact(requestDTO.getContact());
+		Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 
-        restaurant.setOwner(owner);
+		return new RestaurantResponseDTO(savedRestaurant.getId(), owner.getId(), "Restaurant created successfully",
+				savedRestaurant.getStatus());
+	}
 
-        restaurant.setStatus("PENDING");
-        restaurant.setActive(false);
+	public List<RestaurantListResponseDTO> getAllRestaurants() {
 
-        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+		// TODO Auto-generated method stub
 
-        return new RestaurantResponseDTO(savedRestaurant.getId(),
-        		owner.getId(),"Restaurant created successfully",
-                savedRestaurant.getStatus()
-        );
-    }
+		List<Restaurant> restaurants = restaurantRepository.findAll();
+
+		List<RestaurantListResponseDTO> response = new ArrayList<>();
+
+		for (Restaurant restaurant : restaurants) {
+			RestaurantListResponseDTO dto = new RestaurantListResponseDTO();
+
+			dto.setRestaurantId(restaurant.getId());
+			dto.setName(restaurant.getName());
+			dto.setAddress(restaurant.getAddress());
+			dto.setContact(restaurant.getContact());
+			dto.setCuisine(restaurant.getCuisine());
+			dto.setRating(restaurant.getRating());
+			response.add(dto);
+		}
+
+		return response;
+	}
+
+	public List<RestaurantListResponseDTO> getRestaurantsByCuisine(String cuisine) {
+		// TODO Auto-generated method stub
+		List<Restaurant> restaurants = restaurantRepository.findRestaurantsByCuisine(cuisine);
+		List<RestaurantListResponseDTO> response = new ArrayList<>();
+
+		for (Restaurant restaurant : restaurants) {
+			RestaurantListResponseDTO dto = new RestaurantListResponseDTO();
+
+			dto.setRestaurantId(restaurant.getId());
+			dto.setName(restaurant.getName());
+			dto.setAddress(restaurant.getAddress());
+			dto.setContact(restaurant.getContact());
+			dto.setCuisine(restaurant.getCuisine());
+			dto.setRating(restaurant.getRating());
+			response.add(dto);
+		}
+
+		return response;
+	}
 }
-
