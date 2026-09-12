@@ -28,18 +28,14 @@ public class UserServiceimpl implements Userservice {
     
     @Override
     public User Registeruser(UserRequestDTO dto) {
-    	
-        Optional<User> emailUser = repository.findByEmail(dto.getEmail());
 
-        if (emailUser.isPresent()) {
+        if (repository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
-        Optional<User> phoneUser =repository.findByPhonenumber(dto.getPhonenumber());
 
-        if (phoneUser.isPresent()) {
+        if (repository.existsByPhonenumber(dto.getPhonenumber())) {
             throw new RuntimeException("Mobile number already exists");
         }
-
 
         User user = new User();
 
@@ -49,7 +45,6 @@ public class UserServiceimpl implements Userservice {
         user.setPhonenumber(dto.getPhonenumber());
         user.setRole(dto.getRole());
         user.setActive(true);
-
 
         return repository.save(user);
     }

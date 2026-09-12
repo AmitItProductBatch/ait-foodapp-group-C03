@@ -9,12 +9,13 @@ import com.ait.app.entity.User;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
 	Optional<User> findByEmail(String email);
-	
-	 Optional<User> findByPhonenumber(String phonenumber);
+
+	boolean existsByEmail(String email);
+
+	boolean existsByPhonenumber(String phonenumber);
 
 	boolean existsByEmailAndIdNot(String email, int id);
 
-    boolean existsByPhonenumberAndIdNot(String phonenumber, int id);
+	boolean existsByPhonenumberAndIdNot(String phonenumber, int id);
 
-	
 }

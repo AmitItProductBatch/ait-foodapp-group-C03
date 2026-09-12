@@ -8,7 +8,7 @@ import com.ait.app.entity.Restaurant;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Integer> {
 
-	List<Restaurant> findByActiveTrueStatus(String status);
+	List<Restaurant> findByActiveTrueAndStatus(String status);
 
 	List<Restaurant> findRestaurantsByCuisine(String cuisine);
 
