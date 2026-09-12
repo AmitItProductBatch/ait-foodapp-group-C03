@@ -1,5 +1,7 @@
 package com.ait.app.serviceimpl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,31 +15,35 @@ import com.ait.app.service.AddressService;
 @Service
 public class AddressServiceimpl implements AddressService {
 
-	@Autowired
-	AddressRepository addressRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
-	@Autowired
-	UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
+    @Override
+    public Address createAddress(int userId, AddressRequestDTO dto) {
 
-	@Override
-	public Address createAddress(int userId, AddressRequestDTO dto) {
+    	Optional<User> optionalUser = userRepository.findById(userId);
+	    User user = optionalUser.get();
 
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    	if (optionalUser.isPresent()) {
+    	    System.out.println(user.getName());
+    	} else {
+    	    throw new RuntimeException("User not found");
+    	}
+
 
 		Address address = new Address();
+        address.setAddressLabel(dto.getAddressLabel());
+        address.setStreetAddress(dto.getStreetAddress());
+        address.setApartment(dto.getApartment());
+        address.setLandmark(dto.getLandmark());
+        address.setCity(dto.getCity());
+        address.setPostalCode(dto.getPostalCode());
+        address.setDeliveryInstructions(dto.getDeliveryInstructions());
 
-		address.setAddressLabel(dto.getAddressLabel());
-		address.setStreetAddress(dto.getStreetAddress());
-		address.setApartment(dto.getApartment());
-		address.setLandmark(dto.getLandmark());
-		address.setCity(dto.getCity());
-		address.setPostalCode(dto.getPostalCode());
-		address.setDeliveryInstructions(dto.getDeliveryInstructions());
-
-		address.setUser(user);
-
-		return addressRepository.save(address);
-	}
-
+        address.setUser(user);
+        return addressRepository.save(address);
+    }
 }
