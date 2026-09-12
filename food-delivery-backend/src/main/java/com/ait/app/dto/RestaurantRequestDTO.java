@@ -1,16 +1,34 @@
 
 package com.ait.app.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
 public class RestaurantRequestDTO {
 
+   @NotBlank(message = "Restaurant name is required")
 	private String name;
-	private String address;
-	private String cuisine;
-	private String contact;
-	private Integer ownerId;
 
-	public RestaurantRequestDTO() {
-	}
+    @NotBlank(message = "Address is required")
+    private String address;
+
+    @NotBlank(message = "Cuisine is required")
+    private String cuisine;
+
+    @NotBlank(message = "Contact is required")
+    @Pattern(
+        regexp = "^[0-9]{10}$",
+        message = "Contact must be exactly 10 digits"
+    )
+    private String contact;
+
+    @NotNull(message = "Owner ID is required")
+    private Integer ownerId;
 
 	public String getName() {
 		return name;
@@ -51,4 +69,7 @@ public class RestaurantRequestDTO {
 	public void setOwnerId(Integer ownerId) {
 		this.ownerId = ownerId;
 	}
+    
+    
+
 }
