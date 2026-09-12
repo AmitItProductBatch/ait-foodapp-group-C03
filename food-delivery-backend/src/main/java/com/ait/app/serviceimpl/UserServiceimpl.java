@@ -1,5 +1,7 @@
 package com.ait.app.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.ait.app.dto.AdressUpdateDto;
 import com.ait.app.dto.LoginRequestDTO;
+import com.ait.app.dto.LoginResponseDTO;
 import com.ait.app.dto.UpdateProfileDto;
 import com.ait.app.dto.UserRequestDTO;
 import com.ait.app.entity.Address;
@@ -18,201 +21,190 @@ import com.ait.app.service.Userservice;
 @Service
 public class UserServiceimpl implements Userservice {
 
-    @Autowired
-    private UserRepository repository;
+	@Autowired
+	private UserRepository repository;
 
-    @Autowired
-    private AddressRepository addressRepository;
+	@Autowired
+	private AddressRepository addressRepository;
 
+	@Override
+	public User Registeruser(UserRequestDTO dto) {
 
-    
-    @Override
-    public User Registeruser(UserRequestDTO dto) {
-    	
-        Optional<User> emailUser = repository.findByEmail(dto.getEmail());
+		Optional<User> emailUser = repository.findByEmail(dto.getEmail());
 
-        if (emailUser.isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-        Optional<User> phoneUser =repository.findByPhonenumber(dto.getPhonenumber());
+		if (emailUser.isPresent()) {
+			throw new RuntimeException("Email already exists");
+		}
 
-        if (phoneUser.isPresent()) {
-            throw new RuntimeException("Mobile number already exists");
-        }
+		Optional<User> phoneUser = repository.findByPhonenumber(dto.getPhonenumber());
 
+		if (phoneUser.isPresent()) {
+			throw new RuntimeException("Mobile number already exists");
+		}
 
-        User user = new User();
+		User user = new User();
 
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
-        user.setPhonenumber(dto.getPhonenumber());
-        user.setRole(dto.getRole());
-        user.setActive(true);
+		user.setName(dto.getName());
+		user.setEmail(dto.getEmail());
+		user.setPassword(dto.getPassword());
+		user.setPhonenumber(dto.getPhonenumber());
+		user.setRole(dto.getRole());
+		user.setActive(true);
 
+		return repository.save(user);
+	}
 
-        return repository.save(user);
-    }
+	@Override
+	public LoginResponseDTO login(LoginRequestDTO dto) {
 
+		Optional<User> optionalUser = repository.findByEmail(dto.getEmail());
 
-  
-    @Override
-    public User login(LoginRequestDTO dto) {
+		if (optionalUser.isEmpty()) {
+			throw new RuntimeException("Invalid email or password");
+		}
 
-    	Optional<User> optionalUser =repository.findByEmail(dto.getEmail());
+		User user = optionalUser.get();
 
-    	User user;
+		if (user.getActive() == null || !user.getActive()) {
+			throw new RuntimeException("User account is deleted");
+		}
 
-    	if (optionalUser.isPresent()) {
-    	    user = optionalUser.get();
-    	} else {
-    	    throw new RuntimeException("Invalid email or password");
-    	}
+		if (!user.getPassword().equals(dto.getPassword())) {
+			throw new RuntimeException("Invalid email or password");
+		}
 
-      
-    	if (user.getActive() == null || !user.getActive()) {
-    	    throw new RuntimeException("User account is deleted");
-    	}
+		LoginResponseDTO response = new LoginResponseDTO();
 
+		response.setId(user.getId());
+		response.setName(user.getName());
+		response.setEmail(user.getEmail());
+		response.setPhonenumber(user.getPhonenumber());
+		response.setRole(user.getRole());
+		response.setActive(user.getActive());
 
-    	if (!user.getPassword().equals(dto.getPassword())) {
-    	    throw new RuntimeException("Invalid email or password");
-    	}
-        return user;
-    }
+		List<AdressUpdateDto> addressList = new ArrayList<>();
 
+		if (user.getAddresses() != null) {
 
-    @Override
-    public User getUser(int id) {
+			for (Address address : user.getAddresses()) {
 
-        Optional<User> optionalUser = repository.findById(id);
+				AdressUpdateDto addressDto = new AdressUpdateDto();
 
-        if (optionalUser.isPresent()) {
-            return optionalUser.get();
-        } else {
-            throw new RuntimeException("User not found");
-        }
-    }
+				addressDto.setId(address.getId());
+				addressDto.setAddressLabel(address.getAddressLabel());
+				addressDto.setStreetAddress(address.getStreetAddress());
+				addressDto.setApartment(address.getApartment());
+				addressDto.setLandmark(address.getLandmark());
+				addressDto.setCity(address.getCity());
+				addressDto.setPostalCode(address.getPostalCode());
+				addressDto.setDeliveryInstructions(address.getDeliveryInstructions());
 
-   
-    @Override
-    public User updateProfile(int id, UpdateProfileDto dto) {
-    	Optional<User> optionalUser = repository.findById(id);
+				addressList.add(addressDto);
+			}
+		}
 
-    	User user;
+		response.setAddresses(addressList);
 
-    	if (optionalUser.isPresent()) {
-    	    user = optionalUser.get();
-    	} else {
-    	    throw new RuntimeException("User not found");
-    	}
+		return response;
+	}
 
-        if (dto.getName() != null) {
+	@Override
+	public User getUser(int id) {
 
-            user.setName(dto.getName());
-        }
+		Optional<User> optionalUser = repository.findById(id);
 
+		if (optionalUser.isPresent()) {
+			return optionalUser.get();
+		}
 
-        if (dto.getPhonenumber() != null) {
+		throw new RuntimeException("User not found");
+	}
 
-            boolean phoneExists =repository.existsByPhonenumberAndIdNot( dto.getPhonenumber(),id);
+	@Override
+	public User updateProfile(int id, UpdateProfileDto dto) {
 
-            if (phoneExists) {
-                throw new RuntimeException("Mobile number already exists");
-            }
+		Optional<User> optionalUser = repository.findById(id);
 
-            user.setPhonenumber(dto.getPhonenumber());
-        }
+		if (optionalUser.isEmpty()) {
+			throw new RuntimeException("User not found");
+		}
 
-        if (dto.getAdressUpdateDto() != null) {
+		User user = optionalUser.get();
 
-            AdressUpdateDto addressDto = dto.getAdressUpdateDto();
+		if (dto.getName() != null) {
+			user.setName(dto.getName());
+		}
 
+		if (dto.getPhonenumber() != null) {
 
-          
-            Optional<Address> optionalAddress = addressRepository.findByIdAndUserId(addressDto.getId(), id);
+			boolean phoneExists = repository.existsByPhonenumberAndIdNot(dto.getPhonenumber(), id);
 
-            Address address;
+			if (phoneExists) {
+				throw new RuntimeException("Mobile number already exists");
+			}
 
-            if (optionalAddress.isPresent()) {
-                address = optionalAddress.get();
-            } else {
-                throw new RuntimeException("Address not found");
-            }
-            
-            
-            if (addressDto.getAddressLabel() != null) {
+			user.setPhonenumber(dto.getPhonenumber());
+		}
 
-                address.setAddressLabel(addressDto.getAddressLabel());
-            }
+		if (dto.getAdressUpdateDto() != null) {
 
+			AdressUpdateDto addressDto = dto.getAdressUpdateDto();
 
-            
-            if (addressDto.getStreetAddress() != null) {
+			Optional<Address> optionalAddress = addressRepository.findByIdAndUserId(addressDto.getId(), id);
 
-                address.setStreetAddress(addressDto.getStreetAddress());
-            }
+			if (optionalAddress.isEmpty()) {
+				throw new RuntimeException("Address not found");
+			}
 
+			Address address = optionalAddress.get();
 
-           
-            if (addressDto.getApartment() != null) {
+			if (addressDto.getAddressLabel() != null) {
+				address.setAddressLabel(addressDto.getAddressLabel());
+			}
 
-                address.setApartment(addressDto.getApartment());
-            }
+			if (addressDto.getStreetAddress() != null) {
+				address.setStreetAddress(addressDto.getStreetAddress());
+			}
 
+			if (addressDto.getApartment() != null) {
+				address.setApartment(addressDto.getApartment());
+			}
 
-            
-            if (addressDto.getLandmark() != null) {
+			if (addressDto.getLandmark() != null) {
+				address.setLandmark(addressDto.getLandmark());
+			}
 
-                address.setLandmark(addressDto.getLandmark());
-            }
+			if (addressDto.getCity() != null) {
+				address.setCity(addressDto.getCity());
+			}
 
+			if (addressDto.getPostalCode() != null) {
+				address.setPostalCode(addressDto.getPostalCode());
+			}
 
-          
-            if (addressDto.getCity() != null) {
+			if (addressDto.getDeliveryInstructions() != null) {
+				address.setDeliveryInstructions(addressDto.getDeliveryInstructions());
+			}
 
-                address.setCity(addressDto.getCity());
-            }
+			addressRepository.save(address);
+		}
 
+		return repository.save(user);
+	}
 
-          
-            if (addressDto.getPostalCode() != null) {
+	@Override
+	public void DeletUser(int id) {
 
-                address.setPostalCode(addressDto.getPostalCode());
-            }
+		Optional<User> optionalUser = repository.findById(id);
 
+		if (optionalUser.isEmpty()) {
+			throw new RuntimeException("User not found");
+		}
 
-      
-            if (addressDto.getDeliveryInstructions() != null) {
+		User user = optionalUser.get();
 
-                address.setDeliveryInstructions(addressDto.getDeliveryInstructions());
-            }
+		user.setActive(false);
 
-
-           
-            addressRepository.save(address);
-        }
-
-
-        
-        return repository.save(user);
-    }
-
-  @Override
-  public void DeletUser(int id) {
-
-	    Optional<User> optionalUser = repository.findById(id);
-
-	    User user;
-
-	    if (optionalUser.isPresent()) {
-	        user = optionalUser.get();
-	    } else {
-	        throw new RuntimeException("User not found");
-	    }
-
-	    user.setActive(false);
-
-	    repository.save(user);
+		repository.save(user);
 	}
 }
