@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.ait.app.dto.MenuItemRequestDTO;
 import com.ait.app.dto.MenuItemResponseDTO;
+import com.ait.app.dto.PriceResponseDTO;
 import com.ait.app.entity.MenuItem;
 import com.ait.app.entity.Restaurant;
 import com.ait.app.entity.User;
@@ -28,11 +29,17 @@ public class MenuItemServiceImpl implements MenuItemService {
 	@Override
 	public MenuItemResponseDTO createMenuItem(int restaurantId, MenuItemRequestDTO requestDTO) {
 
-		Restaurant restaurant = restaurantRepository.findById(restaurantId)
-				.orElseThrow(() -> new RuntimeException("Restaurant not found"));
+		java.util.Optional<Restaurant> restaurantOptional = restaurantRepository.findById(restaurantId);
+		if (!restaurantOptional.isPresent()) {
+			throw new RuntimeException("Restaurant not found");
+		}
+		Restaurant restaurant = restaurantOptional.get();
 
-		User admin = userRepository.findById(requestDTO.getAdminId())
-				.orElseThrow(() -> new RuntimeException("Admin not found"));
+		java.util.Optional<User> adminOptional = userRepository.findById(requestDTO.getAdminId());
+		if (!adminOptional.isPresent()) {
+			throw new RuntimeException("Admin not found");
+		}
+		User admin = adminOptional.get();
 
 		if (admin.getRole() == null || !"PARTNER".equalsIgnoreCase(admin.getRole())) {
 			throw new RuntimeException("User is not a restaurant administrator");
@@ -74,5 +81,19 @@ public class MenuItemServiceImpl implements MenuItemService {
 				savedItem.getAvailability(),
 				savedItem.getCategory(),
 				"Menu item created successfully");
+	}
+
+	@Override
+	public PriceResponseDTO getItemPrice(int itemId) {
+		java.util.Optional<MenuItem> optional = menuItemRepository.findById(itemId);
+		if (!optional.isPresent()) {
+			return null;
+		}
+		MenuItem menuItem = optional.get();
+		return new PriceResponseDTO(
+				menuItem.getId(),
+				menuItem.getName(),
+				menuItem.getPrice()
+		);
 	}
 }
