@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ait.app.dto.RestaurantDetailsDTO;
 import com.ait.app.dto.RestaurantListResponseDTO;
 import com.ait.app.dto.RestaurantRequestDTO;
 import com.ait.app.dto.RestaurantResponseDTO;
@@ -20,49 +21,95 @@ import com.ait.app.service.RestaurantService;
 @Service
 public class RestaurantServiceImpl implements RestaurantService {
 
-	@Autowired
-	private RestaurantRepository restaurantRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	@Override
-	public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO requestDTO) {
+    @Override
+    public RestaurantResponseDTO createRestaurant(
+            RestaurantRequestDTO requestDTO) {
 
-		if (requestDTO.getOwnerId() == null) {
-			throw new RuntimeException("Owner ID is required");
-		}
+        if (requestDTO.getOwnerId() == null) {
+            throw new RuntimeException("Owner ID is required");
+        }
 
-		User owner = userRepository.findById(requestDTO.getOwnerId())
-				.orElseThrow(() -> new RuntimeException("Owner not found"));
+        int ownerId = requestDTO.getOwnerId();
 
-		if (owner.getRole() == null || !"PARTNER".equalsIgnoreCase(owner.getRole())) {
+        Optional<User> optionalUser =
+                userRepository.findById(ownerId);
 
-			throw new RuntimeException("Owner must have PARTNER role");
-		}
+        User owner;
 
-		if (!Boolean.TRUE.equals(owner.getActive())) {
+        if (optionalUser.isPresent()) {
+            owner = optionalUser.get();
+        } else {
+            throw new RuntimeException("Owner not found");
+        }
 
-			throw new RuntimeException("Owner account is not active");
-		}
+        if (owner.getRole() == null
+                || !"PARTNER".equalsIgnoreCase(owner.getRole())) {
 
-		Restaurant restaurant = new Restaurant();
+            throw new RuntimeException("Owner must have PARTNER role");
+        }
 
-		restaurant.setName(requestDTO.getName());
-		restaurant.setAddress(requestDTO.getAddress());
-		restaurant.setCuisine(requestDTO.getCuisine());
-		restaurant.setContact(requestDTO.getContact());
+        if (!Boolean.TRUE.equals(owner.getActive())) {
 
-		restaurant.setOwner(owner);
+            throw new RuntimeException("Owner account is not active");
+        }
 
-		restaurant.setStatus("PENDING");
-		restaurant.setActive(false);
+        Restaurant restaurant = new Restaurant();
 
-		Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+        restaurant.setName(requestDTO.getName());
+        restaurant.setAddress(requestDTO.getAddress());
+        restaurant.setCuisine(requestDTO.getCuisine());
+        restaurant.setContact(requestDTO.getContact());
 
-		return new RestaurantResponseDTO(savedRestaurant.getId(), owner.getId(), "Restaurant created successfully",
-				savedRestaurant.getStatus());
-	}
+        restaurant.setHours(requestDTO.getHours());
+
+        restaurant.setOwner(owner);
+
+        restaurant.setStatus("PENDING");
+        restaurant.setActive(false);
+
+        Restaurant savedRestaurant =
+                restaurantRepository.save(restaurant);
+
+        return new RestaurantResponseDTO(
+                savedRestaurant.getId(),
+                owner.getId(),
+                "Restaurant created successfully",
+                savedRestaurant.getStatus()
+        );
+    }
+
+    @Override
+    public RestaurantDetailsDTO getRestaurantDetails(Integer id) {
+
+        Optional<Restaurant> optionalRestaurant =
+                restaurantRepository.findByIdAndActiveTrue(id);
+
+        if (optionalRestaurant.isEmpty()) {
+            throw new RuntimeException(
+                    "Restaurant not found or inactive");
+        }
+
+        Restaurant restaurant = optionalRestaurant.get();
+
+        RestaurantDetailsDTO dto = new RestaurantDetailsDTO();
+
+        dto.setRestaurantId(restaurant.getId());
+        dto.setName(restaurant.getName());
+        dto.setAddress(restaurant.getAddress());
+        dto.setHours(restaurant.getHours());
+        dto.setCuisine(restaurant.getCuisine());
+
+        // Rating tumhi feedback table madun ghya foreign key use kara ithya maunally takta yatye using postmanetc..
+        dto.setRating(0.0);
+
+        return dto;
+    }
 
 	public List<RestaurantListResponseDTO> getAllRestaurants() {
 
