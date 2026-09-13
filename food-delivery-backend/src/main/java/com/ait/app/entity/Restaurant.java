@@ -39,6 +39,9 @@ public class Restaurant {
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean active = false;
+    
+    @Column
+	private Double rating;
 
     public Restaurant() {
     }
@@ -106,6 +109,15 @@ public class Restaurant {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+	public Double getRating() {
+		return rating;
+	}
+
+	public void setRating(Double rating) {
+		this.rating = rating;
+	}
+    
 }
 */package com.ait.app.entity;
 
@@ -150,6 +162,9 @@ public class Restaurant {
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean active = false;
+
+    @Column
+	private Double rating;
 
     public Restaurant() {
     }
@@ -225,4 +240,12 @@ public class Restaurant {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+	public Double getRating() {
+		return rating;
+	}
+
+	public void setRating(Double rating) {
+		this.rating = rating;
+	}
 }

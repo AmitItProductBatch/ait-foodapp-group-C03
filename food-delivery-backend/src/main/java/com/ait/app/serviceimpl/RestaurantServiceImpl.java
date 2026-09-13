@@ -1,12 +1,15 @@
 
 package com.ait.app.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ait.app.dto.RestaurantDetailsDTO;
+import com.ait.app.dto.RestaurantListResponseDTO;
 import com.ait.app.dto.RestaurantRequestDTO;
 import com.ait.app.dto.RestaurantResponseDTO;
 import com.ait.app.entity.Restaurant;
@@ -107,5 +110,47 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         return dto;
     }
-}
 
+	public List<RestaurantListResponseDTO> getAllRestaurants() {
+
+		// TODO Auto-generated method stub
+
+		List<Restaurant> restaurants = restaurantRepository.findAll();
+
+		List<RestaurantListResponseDTO> response = new ArrayList<>();
+
+		for (Restaurant restaurant : restaurants) {
+			RestaurantListResponseDTO dto = new RestaurantListResponseDTO();
+
+			dto.setRestaurantId(restaurant.getId());
+			dto.setName(restaurant.getName());
+			dto.setAddress(restaurant.getAddress());
+			dto.setContact(restaurant.getContact());
+			dto.setCuisine(restaurant.getCuisine());
+			dto.setRating(restaurant.getRating());
+			response.add(dto);
+		}
+
+		return response;
+	}
+
+	public List<RestaurantListResponseDTO> getRestaurantsByCuisine(String cuisine) {
+		// TODO Auto-generated method stub
+		List<Restaurant> restaurants = restaurantRepository.findRestaurantsByCuisine(cuisine);
+		List<RestaurantListResponseDTO> response = new ArrayList<>();
+
+		for (Restaurant restaurant : restaurants) {
+			RestaurantListResponseDTO dto = new RestaurantListResponseDTO();
+
+			dto.setRestaurantId(restaurant.getId());
+			dto.setName(restaurant.getName());
+			dto.setAddress(restaurant.getAddress());
+			dto.setContact(restaurant.getContact());
+			dto.setCuisine(restaurant.getCuisine());
+			dto.setRating(restaurant.getRating());
+			response.add(dto);
+		}
+
+		return response;
+	}
+}
