@@ -18,8 +18,7 @@ import jakarta.persistence.UniqueConstraint;
 @Entity
 @Table(
     name = "cart_items",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uk_cart_menu_item",columnNames = {"cart_id", "menu_item_id"})
+    uniqueConstraints = {@UniqueConstraint(name = "uk_cart_menu_item",columnNames = {"cart_id", "menu_item_id"})
     }
 )
 public class CartItem {

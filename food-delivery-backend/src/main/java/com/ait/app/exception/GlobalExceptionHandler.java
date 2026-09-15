@@ -109,4 +109,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String description = request.getDescription(false); 
         return description.startsWith("uri=") ? description.substring(4) : description;
     }
+    
 }

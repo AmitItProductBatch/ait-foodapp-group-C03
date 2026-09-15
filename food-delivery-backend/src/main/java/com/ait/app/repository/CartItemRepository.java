@@ -8,6 +8,5 @@ import com.ait.app.entity.CartItem;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
 
-	
     Optional<CartItem> findByCartIdAndMenuItemId(Integer cartId,Long menuItemId);
 }

@@ -34,7 +34,6 @@ public class CartItemServiceimpl implements CartItemService {
 		if (existingItem != null) {
 			throw new RuntimeException("Menu item already exists in cart");
 		}
-
 		CartItem item = new CartItem();
 
 		item.setCart(cart);
