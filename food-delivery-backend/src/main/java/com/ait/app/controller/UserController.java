@@ -1,13 +1,7 @@
 package com.ait.app.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.ait.app.dto.LoginRequestDTO;
 import com.ait.app.dto.UpdateProfileDto;
@@ -43,11 +37,14 @@ public class UserController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<User> updateUser(
-			@PathVariable int id,
-			@RequestBody UpdateProfileDto dto) {
+	public ResponseEntity<User> updateUser(@PathVariable int id,@RequestBody UpdateProfileDto dto) {
 		User user = userService.updateProfile(id, dto);
 		return ResponseEntity.ok(user);
 	}
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
+        userService.DeletUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }
