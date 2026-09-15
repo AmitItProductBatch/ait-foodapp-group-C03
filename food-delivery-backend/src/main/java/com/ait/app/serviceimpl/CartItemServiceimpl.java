@@ -27,12 +27,9 @@ public class CartItemServiceimpl implements CartItemService {
 
 		Cart cart = cartRepository.findById(dto.getCartId()).orElse(null);
 
-		if (cart == null) {
-			throw new RuntimeException("Cart not found");
-		}
+		if (cart == null) {throw new RuntimeException("Cart not found");}
 
-		CartItem existingItem = cartItemRepository.findByCartIdAndMenuItemId(dto.getCartId(), dto.getMenuItemId())
-				.orElse(null);
+		CartItem existingItem = cartItemRepository.findByCartIdAndMenuItemId(dto.getCartId(), dto.getMenuItemId()).orElse(null);
 
 		if (existingItem != null) {
 			throw new RuntimeException("Menu item already exists in cart");

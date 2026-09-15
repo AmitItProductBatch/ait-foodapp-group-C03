@@ -19,10 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(
     name = "cart_items",
     uniqueConstraints = {
-        @UniqueConstraint(
-            name = "uk_cart_menu_item",
-            columnNames = {"cart_id", "menu_item_id"}
-        )
+        @UniqueConstraint(name = "uk_cart_menu_item",columnNames = {"cart_id", "menu_item_id"})
     }
 )
 public class CartItem {

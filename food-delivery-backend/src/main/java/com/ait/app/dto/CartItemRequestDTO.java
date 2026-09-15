@@ -11,14 +11,11 @@ public class CartItemRequestDTO {
 
 	@NotNull
 	private Integer cartId;
-
 	@NotNull
 	private Long menuItemId;
-
 	@NotNull
 	@Min(1)
 	private Integer quantity;
-
 	@NotNull
 	@PositiveOrZero
 	private BigDecimal unitPrice;

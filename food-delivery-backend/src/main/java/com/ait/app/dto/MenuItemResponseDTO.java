@@ -14,15 +14,7 @@ public class MenuItemResponseDTO {
 	public MenuItemResponseDTO() {
 	}
 
-	public MenuItemResponseDTO(
-			int itemId,
-			int restaurantId,
-			String name,
-			String description,
-			Double price,
-			Boolean availability,
-			String category,
-			String message) {
+	public MenuItemResponseDTO(int itemId,int restaurantId,String name,String description,Double price,Boolean availability,String category,String message) {
 		this.itemId = itemId;
 		this.restaurantId = restaurantId;
 		this.name = name;

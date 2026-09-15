@@ -17,16 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import jakarta.validation.ConstraintViolationException;
 
-/**
- * Single place that turns every exception thrown anywhere in the app
- * (controllers, services, repositories) into a consistent JSON
- * {@link ErrorResponse} instead of a raw stack trace / default Spring
- * "Whitelabel Error Page".
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
-    // ---- domain-specific exceptions (com.ait.app.exception) ----
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
@@ -58,8 +50,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
     }
 
-    // ---- bean validation (@Valid on @RequestBody DTOs) ----
-
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers,
@@ -79,15 +69,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // ---- @Validated on @PathVariable / @RequestParam ----
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(
             ConstraintViolationException ex, WebRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
-
-    // ---- malformed JSON body ----
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
@@ -103,16 +89,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    // ---- anything left over (bugs, NPEs, driver errors, ...) ----
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAnyOtherException(
             Exception ex, WebRequest request) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred. Please try again later.", request);
     }
-
-    // ---- helpers ----
 
     private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status, String message, WebRequest request) {
@@ -124,7 +106,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private String path(WebRequest request) {
-        String description = request.getDescription(false); // "uri=/api/users/42"
+        String description = request.getDescription(false); 
         return description.startsWith("uri=") ? description.substring(4) : description;
     }
 }

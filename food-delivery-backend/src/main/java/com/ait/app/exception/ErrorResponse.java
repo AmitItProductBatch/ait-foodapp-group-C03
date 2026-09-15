@@ -3,20 +3,6 @@ package com.ait.app.exception;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Uniform JSON error body returned by {@link GlobalExceptionHandler} for
- * every exception thrown from a controller.
- *
- * Example:
- * {
- *   "timestamp": "2026-09-14T10:15:30",
- *   "status": 404,
- *   "error": "Not Found",
- *   "message": "User not found with id: 42",
- *   "path": "/api/users/42",
- *   "errors": null
- * }
- */
 public class ErrorResponse {
 
     private LocalDateTime timestamp;
