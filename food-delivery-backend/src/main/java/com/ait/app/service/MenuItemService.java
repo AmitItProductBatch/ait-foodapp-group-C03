@@ -8,5 +8,7 @@ public interface MenuItemService {
 
 	MenuItemResponseDTO createMenuItem(int restaurantId, MenuItemRequestDTO requestDTO);
 
-	MenuItemResponseDTO updateMenuItem(Integer itemId,MenuItemUpdateDTO updateDTO,Integer adminId);
+	MenuItemResponseDTO updateMenuItem(Integer itemId, MenuItemUpdateDTO updateDTO, Integer adminId);
+
+	boolean deleteMenuItem(Integer itemId, Integer adminId);
 }
