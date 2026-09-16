@@ -15,15 +15,19 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/cart")
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
+	@Autowired
+	private CartService cartService;
 
-    @PostMapping
-    public ResponseEntity<CartResponseDTO> createCart(
-            @Valid @RequestBody CartRequestDTO request) {
+	@PostMapping
+	public ResponseEntity<CartResponseDTO> createCart(@Valid @RequestBody CartRequestDTO request) {
 
-        CartResponseDTO response = cartService.createCart(request);
+		CartResponseDTO response = cartService.createCart(request);
 
-        return new ResponseEntity<>( response, HttpStatus.CREATED );
-    }
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+	
+	@DeleteMapping
+	public ResponseEntity<Void> clearCart(@RequestParam Integer userId) {
+		return ResponseEntity.noContent().build();
+	}
 }

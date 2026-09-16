@@ -1,5 +1,7 @@
 package com.ait.app.serviceimpl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,41 +11,55 @@ import com.ait.app.entity.Cart;
 import com.ait.app.repository.CartRepository;
 import com.ait.app.service.CartService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CartServiceImpl implements CartService {
 
-    @Autowired
-    private CartRepository cartRepository;
+	@Autowired
+	private CartRepository cartRepository;
 
-    @Override
-    public CartResponseDTO createCart(CartRequestDTO request) {
+	@Override
+	public CartResponseDTO createCart(CartRequestDTO request) {
 
-        if (cartRepository.existsByUserId(request.getUserId())) {
+		if (cartRepository.existsByUserId(request.getUserId())) {
 
-            throw new RuntimeException(
-                "Cart already exists for user ID: "
-                + request.getUserId()
-            );
-        }
+			throw new RuntimeException("Cart already exists for user ID: " + request.getUserId());
+		}
 
-        Cart cart = new Cart();
+		Cart cart = new Cart();
 
-        cart.setUserId(request.getUserId());
-        cart.setRestaurantId(request.getRestaurantId());
+		cart.setUserId(request.getUserId());
+		cart.setRestaurantId(request.getRestaurantId());
 
-        cart.setTotalAmount(0.0);
+		cart.setTotalAmount(0.0);
 
-        Cart savedCart = cartRepository.save(cart);
+		Cart savedCart = cartRepository.save(cart);
 
-        CartResponseDTO response = new CartResponseDTO();
+		CartResponseDTO response = new CartResponseDTO();
 
-        response.setId(savedCart.getId());
-        response.setUserId(savedCart.getUserId());
-        response.setRestaurantId(savedCart.getRestaurantId());
-        response.setTotalAmount(savedCart.getTotalAmount());
-        response.setCreatedAt(savedCart.getCreatedAt());
-        response.setUpdatedAt(savedCart.getUpdatedAt());
+		response.setId(savedCart.getId());
+		response.setUserId(savedCart.getUserId());
+		response.setRestaurantId(savedCart.getRestaurantId());
+		response.setTotalAmount(savedCart.getTotalAmount());
+		response.setCreatedAt(savedCart.getCreatedAt());
+		response.setUpdatedAt(savedCart.getUpdatedAt());
 
-        return response;
-    }
+		return response;
+	}
+	
+	@Transactional
+	@Override
+	public void clearCart(Integer userId) {
+		Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
+		if (optionalCart.isEmpty()) {
+			return;
+		}
+		Cart cart = optionalCart.get();
+		cart.getCartItems().clear();
+		cart.setRestaurantId(null);
+		cart.setTotalAmount(0.0);
+		cartRepository.save(cart);
+
+	}
 }
