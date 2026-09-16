@@ -14,6 +14,9 @@ import com.ait.app.dto.RestaurantRequestDTO;
 import com.ait.app.dto.RestaurantResponseDTO;
 import com.ait.app.entity.Restaurant;
 import com.ait.app.entity.User;
+import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.ResourceNotFoundException;
+import com.ait.app.exception.UnauthorizedActionException;
 import com.ait.app.repository.RestaurantRepository;
 import com.ait.app.repository.UserRepository;
 import com.ait.app.service.RestaurantService;
@@ -32,7 +35,7 @@ public class RestaurantServiceImpl implements RestaurantService {
             RestaurantRequestDTO requestDTO) {
 
         if (requestDTO.getOwnerId() == null) {
-            throw new RuntimeException("Owner ID is required");
+            throw new InvalidRequestException("Owner ID is required");
         }
 
         int ownerId = requestDTO.getOwnerId();
@@ -45,18 +48,18 @@ public class RestaurantServiceImpl implements RestaurantService {
         if (optionalUser.isPresent()) {
             owner = optionalUser.get();
         } else {
-            throw new RuntimeException("Owner not found");
+            throw new ResourceNotFoundException("Owner not found");
         }
 
         if (owner.getRole() == null
                 || !"PARTNER".equalsIgnoreCase(owner.getRole())) {
 
-            throw new RuntimeException("Owner must have PARTNER role");
+            throw new UnauthorizedActionException("Owner must have PARTNER role");
         }
 
         if (!Boolean.TRUE.equals(owner.getActive())) {
 
-            throw new RuntimeException("Owner account is not active");
+            throw new InvalidRequestException("Owner account is not active");
         }
 
         Restaurant restaurant = new Restaurant();
@@ -91,7 +94,7 @@ public class RestaurantServiceImpl implements RestaurantService {
                 restaurantRepository.findByIdAndActiveTrue(id);
 
         if (optionalRestaurant.isEmpty()) {
-            throw new RuntimeException(
+            throw new ResourceNotFoundException(
                     "Restaurant not found or inactive");
         }
 
