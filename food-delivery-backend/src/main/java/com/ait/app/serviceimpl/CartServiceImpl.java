@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.ait.app.dto.CartRequestDTO;
 import com.ait.app.dto.CartResponseDTO;
 import com.ait.app.entity.Cart;
+import com.ait.app.exception.ResourceAlreadyExistsException;
 import com.ait.app.repository.CartRepository;
 import com.ait.app.service.CartService;
 
@@ -20,7 +21,7 @@ public class CartServiceImpl implements CartService {
 
         if (cartRepository.existsByUserId(request.getUserId())) {
 
-            throw new RuntimeException(
+            throw new ResourceAlreadyExistsException(
                 "Cart already exists for user ID: "
                 + request.getUserId()
             );
