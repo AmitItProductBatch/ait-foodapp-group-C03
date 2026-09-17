@@ -10,35 +10,45 @@ import com.ait.app.dto.CartResponseDTO;
 import com.ait.app.service.CartService;
 
 import jakarta.validation.Valid;
-import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
+	@Autowired
+	private CartService cartService;
 
-    @PostMapping
-    public ResponseEntity<CartResponseDTO> createCart(
-            @Valid @RequestBody CartRequestDTO request) {
+	@PostMapping
+	public ResponseEntity<CartResponseDTO> createCart(@Valid @RequestBody CartRequestDTO request) {
 
-        CartResponseDTO response = cartService.createCart(request);
+		CartResponseDTO response = cartService.createCart(request);
 
-        return new ResponseEntity<>( response, HttpStatus.CREATED );
-    }
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
 
-    
-    @DeleteMapping("/items/{itemId}")
-    public ResponseEntity<String> deleteCartItem(
-            @PathVariable Integer itemId,
-            @RequestParam Integer userId) {
+	@GetMapping
+	public ResponseEntity<CartResponseDTO> getMyCart() {
 
-        try {
-            cartService.deleteCartItem(itemId, userId);
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
+		Integer userId = 1;
+
+		CartResponseDTO response = cartService.getMyCart(userId);
+
+		return ResponseEntity.ok(response);
+	}
+
+	@DeleteMapping
+	public ResponseEntity<Void> clearCart(@RequestParam Integer userId) {
+
+		cartService.clearCart(userId);
+
+		return ResponseEntity.noContent().build();
+	}
+
+	@DeleteMapping("/items/{itemId}")
+	public ResponseEntity<Void> deleteCartItem(@PathVariable Integer itemId, @RequestParam Integer userId) {
+
+		cartService.deleteCartItem(itemId, userId);
+
+		return ResponseEntity.noContent().build();
+	}
 }

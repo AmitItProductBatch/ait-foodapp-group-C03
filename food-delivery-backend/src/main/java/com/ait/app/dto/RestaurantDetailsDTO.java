@@ -10,8 +10,7 @@ public class RestaurantDetailsDTO {
     private String cuisine;
     private Double rating;
 
-    public RestaurantDetailsDTO(int restaurantId, String name, String address, String hours, String cuisine,
-    		Double rating) {
+    public RestaurantDetailsDTO(int restaurantId, String name, String address, String hours, String cuisine,Double rating) {
     	super();
     	this.restaurantId = restaurantId;
     	this.name = name;

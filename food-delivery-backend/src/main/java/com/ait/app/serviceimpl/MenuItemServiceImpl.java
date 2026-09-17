@@ -12,6 +12,10 @@ import com.ait.app.dto.PriceResponseDTO;
 import com.ait.app.entity.MenuItem;
 import com.ait.app.entity.Restaurant;
 import com.ait.app.entity.User;
+import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.ResourceAlreadyExistsException;
+import com.ait.app.exception.ResourceNotFoundException;
+import com.ait.app.exception.UnauthorizedActionException;
 import com.ait.app.repository.MenuItemRepository;
 import com.ait.app.repository.RestaurantRepository;
 import com.ait.app.repository.UserRepository;
@@ -34,34 +38,34 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 		java.util.Optional<Restaurant> restaurantOptional = restaurantRepository.findById(restaurantId);
 		if (!restaurantOptional.isPresent()) {
-			throw new RuntimeException("Restaurant not found");
+			throw new ResourceNotFoundException("Restaurant not found");
 		}
 		Restaurant restaurant = restaurantOptional.get();
 
 		java.util.Optional<User> adminOptional = userRepository.findById(requestDTO.getAdminId());
 		if (!adminOptional.isPresent()) {
-			throw new RuntimeException("Admin not found");
+			throw new ResourceNotFoundException("Admin not found");
 		}
 		User admin = adminOptional.get();
 
 		if (admin.getRole() == null || !"PARTNER".equalsIgnoreCase(admin.getRole())) {
-			throw new RuntimeException("User is not a restaurant administrator");
+			throw new UnauthorizedActionException("User is not a restaurant administrator");
 		}
 
 		if (restaurant.getOwner() == null || restaurant.getOwner().getId() != admin.getId()) {
-			throw new RuntimeException("You are not authorized to add menu items to this restaurant");
+			throw new UnauthorizedActionException("You are not authorized to add menu items to this restaurant");
 		}
 
 		if (requestDTO.getPrice() == null || requestDTO.getPrice() <= 0) {
-			throw new RuntimeException("Price must be greater than 0");
+			throw new InvalidRequestException("Price must be greater than 0");
 		}
 
-		boolean exists = menuItemRepository.existsByRestaurantIdAndNameIgnoreCase(
+		boolean exists = menuItemRepository.existsByRestaurantIdAndNameIgnoreCaseAndDeletedFalse(
 				restaurantId,
 				requestDTO.getName());
 
 		if (exists) {
-			throw new RuntimeException(
+			throw new ResourceAlreadyExistsException(
 					"Menu item with name '" + requestDTO.getName() + "' already exists in this restaurant");
 		}
 
@@ -71,6 +75,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 		menuItem.setPrice(requestDTO.getPrice());
 		menuItem.setAvailability(requestDTO.getAvailability());
 		menuItem.setCategory(requestDTO.getCategory());
+		menuItem.setDeleted(false);
 		menuItem.setRestaurant(restaurant);
 
 		MenuItem savedItem = menuItemRepository.save(menuItem);
@@ -90,9 +95,14 @@ public class MenuItemServiceImpl implements MenuItemService {
 	public PriceResponseDTO getItemPrice(int itemId) {
 		java.util.Optional<MenuItem> optional = menuItemRepository.findById(itemId);
 		if (!optional.isPresent()) {
-			return null;
+			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
 		}
 		MenuItem menuItem = optional.get();
+
+		if (Boolean.TRUE.equals(menuItem.getDeleted())) {
+			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		}
+
 		return new PriceResponseDTO(
 				menuItem.getId(),
 				menuItem.getName(),
@@ -106,10 +116,14 @@ public class MenuItemServiceImpl implements MenuItemService {
 		 Optional<MenuItem> optionalMenuItem =menuItemRepository.findById(itemId);
 		 
 		 if (optionalMenuItem.isEmpty()) {
-		        throw new RuntimeException("Menu item not found with id: " + itemId);
+		        throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
 		    }
 		 
 		 MenuItem menuItem = optionalMenuItem.get();
+
+		 if (Boolean.TRUE.equals(menuItem.getDeleted())) {
+			 throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		 }
 		 
 		 if (updateDTO.getDescription() != null) {
 		        menuItem.setDescription(updateDTO.getDescription());
@@ -126,10 +140,55 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 		 return new MenuItemResponseDTO( savedItem.getId(), savedItem.getRestaurant().getId(),savedItem.getName(), savedItem.getDescription(),savedItem.getPrice(), savedItem.getAvailability(),
 		            savedItem.getCategory(), "Menu item updated successfully" );
+}
 
+	@Override
+	public void deleteMenuItem(Integer itemId, Integer adminId) {
 
+		Optional<MenuItem> optionalMenuItem = menuItemRepository.findById(itemId);
 
-		
-	
+		if (optionalMenuItem.isEmpty()) {
+			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		}
+
+		MenuItem menuItem = optionalMenuItem.get();
+
+		if (Boolean.TRUE.equals(menuItem.getDeleted())) {
+			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		}
+
+		Restaurant restaurant = menuItem.getRestaurant();
+
+		if (restaurant == null) {
+			throw new ResourceNotFoundException("Restaurant not found");
+		}
+
+		Optional<User> optionalAdmin = userRepository.findById(adminId);
+
+		if (optionalAdmin.isEmpty()) {
+			throw new ResourceNotFoundException("Admin not found");
+		}
+
+		User admin = optionalAdmin.get();
+
+		if (admin.getRole() == null || !"PARTNER".equalsIgnoreCase(admin.getRole())) {
+
+			throw new UnauthorizedActionException("User is not a restaurant administrator");
+		}
+
+		if (restaurant.getOwner() == null || restaurant.getOwner().getId() != admin.getId()) {
+
+			throw new UnauthorizedActionException("You are not authorized to delete this menu item");
+		}
+
+		menuItem.setDeleted(true);
+
+		menuItem.setAvailability(false);
+
+		menuItemRepository.save(menuItem);
 	}
+	
+	
+	
+	
 }

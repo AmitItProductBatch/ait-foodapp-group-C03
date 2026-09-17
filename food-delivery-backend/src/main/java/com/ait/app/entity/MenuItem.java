@@ -37,10 +37,22 @@ public class MenuItem {
 
 	@Column(nullable = false)
 	private String category;
-
+	
+	@Column(nullable = false)
+	private Boolean deleted = false;
+	
 	@ManyToOne
 	@JoinColumn(name = "restaurant_id", nullable = false)
 	private Restaurant restaurant;
+
+	
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
+	}
 
 	public MenuItem() {
 	}

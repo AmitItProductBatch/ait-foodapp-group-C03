@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.ait.app.dto.AddressRequestDTO;
 import com.ait.app.entity.Address;
 import com.ait.app.entity.User;
+import com.ait.app.exception.ResourceNotFoundException;
 import com.ait.app.repository.AddressRepository;
 import com.ait.app.repository.UserRepository;
 import com.ait.app.service.AddressService;
@@ -30,7 +31,7 @@ public class AddressServiceimpl implements AddressService {
     	if (optionalUser.isPresent()) {
     	    System.out.println(user.getName());
     	} else {
-    	    throw new RuntimeException("User not found");
+    	    throw new ResourceNotFoundException("User not found");
     	}
 
 
