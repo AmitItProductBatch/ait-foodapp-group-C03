@@ -130,10 +130,51 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 		 return new MenuItemResponseDTO( savedItem.getId(), savedItem.getRestaurant().getId(),savedItem.getName(), savedItem.getDescription(),savedItem.getPrice(), savedItem.getAvailability(),
 		            savedItem.getCategory(), "Menu item updated successfully" );
+}
 
+	@Override
+	public void deleteMenuItem(Integer itemId, Integer adminId) {
 
+		Optional<MenuItem> optionalMenuItem = menuItemRepository.findById(itemId);
 
-		
-	
+		if (optionalMenuItem.isEmpty()) {
+			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		}
+
+		MenuItem menuItem = optionalMenuItem.get();
+
+		Restaurant restaurant = menuItem.getRestaurant();
+
+		if (restaurant == null) {
+			throw new ResourceNotFoundException("Restaurant not found");
+		}
+
+		Optional<User> optionalAdmin = userRepository.findById(adminId);
+
+		if (optionalAdmin.isEmpty()) {
+			throw new ResourceNotFoundException("Admin not found");
+		}
+
+		User admin = optionalAdmin.get();
+
+		if (admin.getRole() == null || !"PARTNER".equalsIgnoreCase(admin.getRole())) {
+
+			throw new UnauthorizedActionException("User is not a restaurant administrator");
+		}
+
+		if (restaurant.getOwner() == null || restaurant.getOwner().getId() != admin.getId()) {
+
+			throw new UnauthorizedActionException("You are not authorized to delete this menu item");
+		}
+
+		menuItem.setDeleted(true);
+
+		menuItem.setAvailability(false);
+
+		menuItemRepository.save(menuItem);
 	}
+	
+	
+	
+	
 }
