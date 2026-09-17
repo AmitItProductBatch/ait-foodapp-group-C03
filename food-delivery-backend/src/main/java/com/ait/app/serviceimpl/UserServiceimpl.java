@@ -14,6 +14,10 @@ import com.ait.app.dto.UpdateProfileDto;
 import com.ait.app.dto.UserRequestDTO;
 import com.ait.app.entity.Address;
 import com.ait.app.entity.User;
+import com.ait.app.exception.InvalidCredentialsException;
+import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.ResourceAlreadyExistsException;
+import com.ait.app.exception.ResourceNotFoundException;
 import com.ait.app.repository.AddressRepository;
 import com.ait.app.repository.UserRepository;
 import com.ait.app.service.Userservice;
@@ -31,11 +35,11 @@ public class UserServiceimpl implements Userservice {
 	public User Registeruser(UserRequestDTO dto) {
 
 		if (repository.existsByEmail(dto.getEmail())) {
-			throw new RuntimeException("Email already exists");
+			throw new ResourceAlreadyExistsException("Email already exists");
 		}
 
 		if (repository.existsByPhonenumber(dto.getPhonenumber())) {
-			throw new RuntimeException("Mobile number already exists");
+			throw new ResourceAlreadyExistsException("Mobile number already exists");
 		}
 
 		User user = new User();
@@ -56,17 +60,17 @@ public class UserServiceimpl implements Userservice {
 		Optional<User> optionalUser = repository.findByEmail(dto.getEmail());
 
 		if (optionalUser.isEmpty()) {
-			throw new RuntimeException("Invalid email or password");
+			throw new InvalidCredentialsException("Invalid email or password");
 		}
 
 		User user = optionalUser.get();
 
 		if (user.getActive() == null || !user.getActive()) {
-			throw new RuntimeException("User account is deleted");
+			throw new InvalidRequestException("User account is deleted");
 		}
 
 		if (!user.getPassword().equals(dto.getPassword())) {
-			throw new RuntimeException("Invalid email or password");
+			throw new InvalidCredentialsException("Invalid email or password");
 		}
 
 		LoginResponseDTO response = new LoginResponseDTO();
@@ -113,7 +117,7 @@ public class UserServiceimpl implements Userservice {
 			return optionalUser.get();
 		}
 
-		throw new RuntimeException("User not found");
+		throw new ResourceNotFoundException("User not found");
 	}
 
 	@Override
@@ -122,7 +126,7 @@ public class UserServiceimpl implements Userservice {
 		Optional<User> optionalUser = repository.findById(id);
 
 		if (optionalUser.isEmpty()) {
-			throw new RuntimeException("User not found");
+			throw new ResourceNotFoundException("User not found");
 		}
 
 		User user = optionalUser.get();
@@ -136,7 +140,7 @@ public class UserServiceimpl implements Userservice {
 			boolean phoneExists = repository.existsByPhonenumberAndIdNot(dto.getPhonenumber(), id);
 
 			if (phoneExists) {
-				throw new RuntimeException("Mobile number already exists");
+				throw new ResourceAlreadyExistsException("Mobile number already exists");
 			}
 
 			user.setPhonenumber(dto.getPhonenumber());
@@ -149,7 +153,7 @@ public class UserServiceimpl implements Userservice {
 			Optional<Address> optionalAddress = addressRepository.findByIdAndUserId(addressDto.getId(), id);
 
 			if (optionalAddress.isEmpty()) {
-				throw new RuntimeException("Address not found");
+				throw new ResourceNotFoundException("Address not found");
 			}
 
 			Address address = optionalAddress.get();
@@ -194,7 +198,7 @@ public class UserServiceimpl implements Userservice {
 		Optional<User> optionalUser = repository.findById(id);
 
 		if (optionalUser.isEmpty()) {
-			throw new RuntimeException("User not found");
+			throw new ResourceNotFoundException("User not found");
 		}
 
 		User user = optionalUser.get();

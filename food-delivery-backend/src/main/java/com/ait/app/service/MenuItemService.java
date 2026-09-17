@@ -4,6 +4,7 @@ import com.ait.app.dto.MenuItemRequestDTO;
 import com.ait.app.dto.MenuItemResponseDTO;
 import com.ait.app.dto.MenuItemUpdateDTO;
 import com.ait.app.dto.PriceResponseDTO;
+import com.ait.app.dto.RestaurantMenuResponseDTO;
 
 public interface MenuItemService {
 
@@ -12,4 +13,8 @@ public interface MenuItemService {
 	PriceResponseDTO getItemPrice(int itemId);
 
 	MenuItemResponseDTO updateMenuItem(Integer itemId,MenuItemUpdateDTO updateDTO,Integer adminId);
+	
+	 void deleteMenuItem(Integer itemId, Integer adminId);
+
+	RestaurantMenuResponseDTO getRestaurantMenu(int restaurantId);
 }

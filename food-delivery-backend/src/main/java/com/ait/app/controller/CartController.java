@@ -15,15 +15,40 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/cart")
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
+	@Autowired
+	private CartService cartService;
 
-    @PostMapping
-    public ResponseEntity<CartResponseDTO> createCart(
-            @Valid @RequestBody CartRequestDTO request) {
+	@PostMapping
+	public ResponseEntity<CartResponseDTO> createCart(@Valid @RequestBody CartRequestDTO request) {
 
-        CartResponseDTO response = cartService.createCart(request);
+		CartResponseDTO response = cartService.createCart(request);
 
-        return new ResponseEntity<>( response, HttpStatus.CREATED );
-    }
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+
+	@GetMapping
+	public ResponseEntity<CartResponseDTO> getMyCart() {
+
+		Integer userId = 1;
+
+		CartResponseDTO response = cartService.getMyCart(userId);
+
+		return ResponseEntity.ok(response);
+	}
+
+	@DeleteMapping
+	public ResponseEntity<Void> clearCart(@RequestParam Integer userId) {
+
+		cartService.clearCart(userId);
+
+		return ResponseEntity.noContent().build();
+	}
+
+	@DeleteMapping("/items/{itemId}")
+	public ResponseEntity<Void> deleteCartItem(@PathVariable Integer itemId, @RequestParam Integer userId) {
+
+		cartService.deleteCartItem(itemId, userId);
+
+		return ResponseEntity.noContent().build();
+	}
 }
