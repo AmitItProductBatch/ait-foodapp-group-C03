@@ -12,4 +12,6 @@ public interface MenuItemService {
 	PriceResponseDTO getItemPrice(int itemId);
 
 	MenuItemResponseDTO updateMenuItem(Integer itemId,MenuItemUpdateDTO updateDTO,Integer adminId);
+	
+	 void deleteMenuItem(Integer itemId, Integer adminId);
 }

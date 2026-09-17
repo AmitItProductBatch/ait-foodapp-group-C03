@@ -1,23 +1,28 @@
 package com.ait.app.serviceimpl;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ait.app.dto.CartItemResponseDTO;
 import com.ait.app.dto.CartRequestDTO;
 import com.ait.app.dto.CartResponseDTO;
 import com.ait.app.entity.Cart;
+import com.ait.app.entity.CartItem;
+import com.ait.app.repository.CartItemRepository;
 import com.ait.app.repository.CartRepository;
 import com.ait.app.service.CartService;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class CartServiceImpl implements CartService {
 
 	@Autowired
 	private CartRepository cartRepository;
+
+	@Autowired
+	private CartItemRepository cartItemRepository;
 
 	@Override
 	public CartResponseDTO createCart(CartRequestDTO request) {
@@ -31,7 +36,6 @@ public class CartServiceImpl implements CartService {
 
 		cart.setUserId(request.getUserId());
 		cart.setRestaurantId(request.getRestaurantId());
-
 		cart.setTotalAmount(0.0);
 
 		Cart savedCart = cartRepository.save(cart);
@@ -44,22 +48,82 @@ public class CartServiceImpl implements CartService {
 		response.setTotalAmount(savedCart.getTotalAmount());
 		response.setCreatedAt(savedCart.getCreatedAt());
 		response.setUpdatedAt(savedCart.getUpdatedAt());
+		response.setItems(new ArrayList<>());
 
 		return response;
 	}
-	
-	@Transactional
+
+	@Override
+	public CartResponseDTO getMyCart(Integer userId) {
+
+		Cart cart = cartRepository.findByUserId(userId).orElse(null);
+
+		if (cart == null) {
+
+			CartResponseDTO response = new CartResponseDTO();
+
+			response.setId(null);
+			response.setUserId(userId);
+			response.setRestaurantId(null);
+			response.setItems(new ArrayList<>());
+			response.setTotalAmount(0.0);
+
+			return response;
+		}
+
+		List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+
+		List<CartItemResponseDTO> itemResponses = new ArrayList<>();
+
+		double totalAmount = 0.0;
+
+		for (CartItem cartItem : cartItems) {
+
+			Long itemId = cartItem.getMenuItemId();
+
+			Double unitPrice = cartItem.getUnitPrice().doubleValue();
+
+			Integer quantity = cartItem.getQuantity();
+
+			Double subtotal = cartItem.getSubtotal().doubleValue();
+
+			CartItemResponseDTO itemResponse = new CartItemResponseDTO(itemId, null, unitPrice, quantity, subtotal);
+
+			itemResponses.add(itemResponse);
+
+			totalAmount += subtotal;
+		}
+
+		CartResponseDTO response = new CartResponseDTO();
+
+		response.setId(cart.getId());
+		response.setUserId(cart.getUserId());
+		response.setRestaurantId(cart.getRestaurantId());
+		response.setItems(itemResponses);
+		response.setTotalAmount(totalAmount);
+		response.setCreatedAt(cart.getCreatedAt());
+		response.setUpdatedAt(cart.getUpdatedAt());
+
+		return response;
+	}
+
 	@Override
 	public void clearCart(Integer userId) {
-		Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
-		if (optionalCart.isEmpty()) {
+
+		Cart cart = cartRepository.findByUserId(userId).orElse(null);
+
+		if (cart == null) {
 			return;
 		}
-		Cart cart = optionalCart.get();
-		cart.getCartItems().clear();
+
+		List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+
+		for (CartItem cartItem : cartItems) {
+			cartItemRepository.delete(cartItem);
+		}
+
 		cart.setRestaurantId(null);
 		cart.setTotalAmount(0.0);
 		cartRepository.save(cart);
-
 	}
 }
