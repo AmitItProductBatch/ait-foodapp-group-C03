@@ -1,14 +1,19 @@
 package com.ait.app.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ait.app.dto.MenuCategoryDTO;
+import com.ait.app.dto.MenuItemDetailDTO;
 import com.ait.app.dto.MenuItemRequestDTO;
 import com.ait.app.dto.MenuItemResponseDTO;
 import com.ait.app.dto.MenuItemUpdateDTO;
 import com.ait.app.dto.PriceResponseDTO;
+import com.ait.app.dto.RestaurantMenuResponseDTO;
 import com.ait.app.entity.MenuItem;
 import com.ait.app.entity.Restaurant;
 import com.ait.app.entity.User;
@@ -187,8 +192,55 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 		menuItemRepository.save(menuItem);
 	}
-	
-	
-	
-	
+
+	@Override
+	public RestaurantMenuResponseDTO getRestaurantMenu(int restaurantId) {
+
+		Optional<Restaurant> restaurantOptional = restaurantRepository.findById(restaurantId);
+
+		if (restaurantOptional.isEmpty()) {
+			throw new ResourceNotFoundException("Restaurant not found");
+		}
+
+		List<MenuItem> menuItems = menuItemRepository
+				.findByRestaurantIdAndAvailabilityTrueAndDeletedFalse(restaurantId);
+
+		List<String> categories = new ArrayList<>();
+
+		for (MenuItem menuItem : menuItems) {
+			String category = menuItem.getCategory();
+			if (!categories.contains(category)) {
+				categories.add(category);
+			}
+		}
+
+		List<MenuCategoryDTO> categoryList = new ArrayList<>();
+
+		for (String category : categories) {
+			MenuCategoryDTO categoryDTO = new MenuCategoryDTO();
+			categoryDTO.setCategory(category);
+
+			List<MenuItemDetailDTO> items = new ArrayList<>();
+
+			for (MenuItem menuItem : menuItems) {
+				if (category.equals(menuItem.getCategory())) {
+					MenuItemDetailDTO itemDTO = new MenuItemDetailDTO();
+					itemDTO.setItemId(menuItem.getId());
+					itemDTO.setName(menuItem.getName());
+					itemDTO.setDescription(menuItem.getDescription());
+					itemDTO.setPrice(menuItem.getPrice());
+					items.add(itemDTO);
+				}
+			}
+
+			categoryDTO.setItems(items);
+			categoryList.add(categoryDTO);
+		}
+
+		RestaurantMenuResponseDTO response = new RestaurantMenuResponseDTO();
+		response.setRestaurantId(restaurantId);
+		response.setCategories(categoryList);
+
+		return response;
+	}
 }
