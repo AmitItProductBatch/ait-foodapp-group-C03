@@ -10,4 +10,6 @@ public interface CartService {
 	CartResponseDTO getMyCart(Integer userId);
 
 	void clearCart(Integer userId);
+
+	void deleteCartItem(Integer itemId, Integer userId);
 }

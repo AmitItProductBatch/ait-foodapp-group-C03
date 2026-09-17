@@ -2,6 +2,7 @@ package com.ait.app.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import com.ait.app.dto.CartRequestDTO;
 import com.ait.app.dto.CartResponseDTO;
 import com.ait.app.entity.Cart;
 import com.ait.app.entity.CartItem;
+import com.ait.app.exception.ResourceNotFoundException;
 import com.ait.app.repository.CartItemRepository;
 import com.ait.app.repository.CartRepository;
 import com.ait.app.service.CartService;
@@ -124,6 +126,37 @@ public class CartServiceImpl implements CartService {
 
 		cart.setRestaurantId(null);
 		cart.setTotalAmount(0.0);
+		cartRepository.save(cart);
+	}
+
+	@Override
+	public void deleteCartItem(Integer itemId, Integer userId) {
+
+		Optional<CartItem> cartItemOptional = cartItemRepository.findByIdAndCartUserId(itemId, userId);
+
+		if (cartItemOptional.isEmpty()) {
+			throw new ResourceNotFoundException("Cart item not found or does not belong to user");
+		}
+
+		CartItem cartItem = cartItemOptional.get();
+		Cart cart = cartItem.getCart();
+
+		cartItemRepository.delete(cartItem);
+
+		List<CartItem> remainingItems = cartItemRepository.findByCartId(cart.getId());
+
+		double newTotal = 0.0;
+
+		for (CartItem item : remainingItems) {
+			newTotal += item.getSubtotal().doubleValue();
+		}
+
+		cart.setTotalAmount(newTotal);
+
+		if (remainingItems.isEmpty()) {
+			cart.setRestaurantId(null);
+		}
+
 		cartRepository.save(cart);
 	}
 }
