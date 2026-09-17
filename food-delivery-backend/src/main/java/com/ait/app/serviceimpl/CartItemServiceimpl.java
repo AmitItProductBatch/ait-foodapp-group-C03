@@ -49,7 +49,11 @@ public class CartItemServiceimpl implements CartItemService {
 
 		CartItem saved = cartItemRepository.save(item);
 
-		return new CartItemResponseDTO(saved.getId(), saved.getCart().getId(), saved.getMenuItemId(),
-				saved.getQuantity(), saved.getUnitPrice(), saved.getSubtotal());
+				return new CartItemResponseDTO(
+				saved.getMenuItemId(),
+				null,
+				saved.getUnitPrice().doubleValue(),
+				saved.getQuantity(),
+				saved.getSubtotal().doubleValue());
 	}
 }

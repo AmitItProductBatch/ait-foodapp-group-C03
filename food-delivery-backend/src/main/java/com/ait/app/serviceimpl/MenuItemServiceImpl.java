@@ -60,7 +60,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 			throw new InvalidRequestException("Price must be greater than 0");
 		}
 
-		boolean exists = menuItemRepository.existsByRestaurantIdAndNameIgnoreCase(
+		boolean exists = menuItemRepository.existsByRestaurantIdAndNameIgnoreCaseAndDeletedFalse(
 				restaurantId,
 				requestDTO.getName());
 
@@ -75,6 +75,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 		menuItem.setPrice(requestDTO.getPrice());
 		menuItem.setAvailability(requestDTO.getAvailability());
 		menuItem.setCategory(requestDTO.getCategory());
+		menuItem.setDeleted(false);
 		menuItem.setRestaurant(restaurant);
 
 		MenuItem savedItem = menuItemRepository.save(menuItem);
@@ -97,6 +98,11 @@ public class MenuItemServiceImpl implements MenuItemService {
 			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
 		}
 		MenuItem menuItem = optional.get();
+
+		if (Boolean.TRUE.equals(menuItem.getDeleted())) {
+			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		}
+
 		return new PriceResponseDTO(
 				menuItem.getId(),
 				menuItem.getName(),
@@ -114,6 +120,10 @@ public class MenuItemServiceImpl implements MenuItemService {
 		    }
 		 
 		 MenuItem menuItem = optionalMenuItem.get();
+
+		 if (Boolean.TRUE.equals(menuItem.getDeleted())) {
+			 throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		 }
 		 
 		 if (updateDTO.getDescription() != null) {
 		        menuItem.setDescription(updateDTO.getDescription());
@@ -142,6 +152,10 @@ public class MenuItemServiceImpl implements MenuItemService {
 		}
 
 		MenuItem menuItem = optionalMenuItem.get();
+
+		if (Boolean.TRUE.equals(menuItem.getDeleted())) {
+			throw new ResourceNotFoundException("Menu item not found with id: " + itemId);
+		}
 
 		Restaurant restaurant = menuItem.getRestaurant();
 
