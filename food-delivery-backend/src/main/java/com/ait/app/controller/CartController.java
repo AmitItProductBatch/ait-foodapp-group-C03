@@ -26,4 +26,15 @@ public class CartController {
 
         return new ResponseEntity<>( response, HttpStatus.CREATED );
     }
+    
+    @GetMapping
+    public ResponseEntity<CartResponseDTO> getMyCart() {
+
+      
+        Integer userId = 1;
+
+        CartResponseDTO response =cartService.getMyCart(userId);
+
+        return ResponseEntity.ok(response);
+}
 }

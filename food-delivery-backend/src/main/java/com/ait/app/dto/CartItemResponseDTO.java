@@ -1,73 +1,66 @@
 package com.ait.app.dto;
 
-import java.math.BigDecimal;
-
 public class CartItemResponseDTO {
 
-    private Integer id;
-    private Integer cartId;
-    private Long menuItemId;
-    private Integer quantity;
-    private BigDecimal unitPrice;
-    private BigDecimal subtotal;
+	private Long itemId;
 
-    public CartItemResponseDTO() {
-    }
+	private String itemName;
 
-    public CartItemResponseDTO(Integer id,Integer cartId,Long menuItemId,Integer quantity,BigDecimal unitPrice,BigDecimal subtotal) {
-        this.id = id;
-        this.cartId = cartId;
-        this.menuItemId = menuItemId;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.subtotal = subtotal;
-    }
+	private Double unitPrice;
 
-    public Integer getId() {
-        return id;
-    }
+	private Integer quantity;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	private Double subtotal;
 
-    public Integer getCartId() {
-        return cartId;
-    }
+	public CartItemResponseDTO() {
+	}
 
-    public void setCartId(Integer cartId) {
-        this.cartId = cartId;
-    }
+	public CartItemResponseDTO(Long itemId, String itemName, Double unitPrice, Integer quantity, Double subtotal) {
 
-    public Long getMenuItemId() {
-        return menuItemId;
-    }
+		this.itemId = itemId;
+		this.itemName = itemName;
+		this.unitPrice = unitPrice;
+		this.quantity = quantity;
+		this.subtotal = subtotal;
+	}
 
-    public void setMenuItemId(Long menuItemId) {
-        this.menuItemId = menuItemId;
-    }
+	public Long getItemId() {
+		return itemId;
+	}
 
-    public Integer getQuantity() {
-        return quantity;
-    }
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
+	public String getItemName() {
+		return itemName;
+	}
 
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
+	public void setItemName(String itemName) {
+		this.itemName = itemName;
+	}
 
-    public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
-    }
+	public Double getUnitPrice() {
+		return unitPrice;
+	}
 
-    public BigDecimal getSubtotal() {
-        return subtotal;
-    }
+	public void setUnitPrice(Double unitPrice) {
+		this.unitPrice = unitPrice;
+	}
 
-    public void setSubtotal(BigDecimal subtotal) {
-        this.subtotal = subtotal;
-    }
+	public Integer getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
+
+	public Double getSubtotal() {
+		return subtotal;
+	}
+
+	public void setSubtotal(Double subtotal) {
+		this.subtotal = subtotal;
+	}
 }

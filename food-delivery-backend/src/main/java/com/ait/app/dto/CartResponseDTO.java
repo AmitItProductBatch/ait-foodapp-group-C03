@@ -1,64 +1,80 @@
 package com.ait.app.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class CartResponseDTO {
 
-    private Integer id;
-    private Integer userId;
-    private Integer restaurantId;
-    private Double totalAmount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+	private Integer id;
 
-    public CartResponseDTO() {
-    }
+	private Integer userId;
 
-    public Integer getId() {
-        return id;
-    }
+	private Integer restaurantId;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	private Double totalAmount;
 
-    public Integer getUserId() {
-        return userId;
-    }
+	private LocalDateTime createdAt;
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
+	private LocalDateTime updatedAt;
 
-    public Integer getRestaurantId() {
-        return restaurantId;
-    }
+	private List<CartItemResponseDTO> items;
 
-    public void setRestaurantId(Integer restaurantId) {
-        this.restaurantId = restaurantId;
-    }
+	public CartResponseDTO() {
+	}
 
-    public Double getTotalAmount() {
-        return totalAmount;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public void setTotalAmount(Double totalAmount) {
-        this.totalAmount = totalAmount;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+	public Integer getUserId() {
+		return userId;
+	}
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
+	public Integer getRestaurantId() {
+		return restaurantId;
+	}
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+	public void setRestaurantId(Integer restaurantId) {
+		this.restaurantId = restaurantId;
+	}
+
+	public Double getTotalAmount() {
+		return totalAmount;
+	}
+
+	public void setTotalAmount(Double totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public List<CartItemResponseDTO> getItems() {
+		return items;
+	}
+
+	public void setItems(List<CartItemResponseDTO> items) {
+		this.items = items;
+	}
 }
