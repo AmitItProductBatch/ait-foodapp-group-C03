@@ -106,4 +106,24 @@ public class CartServiceImpl implements CartService {
 
 		return response;
 	}
+
+	@Override
+	public void clearCart(Integer userId) {
+
+		Cart cart = cartRepository.findByUserId(userId).orElse(null);
+
+		if (cart == null) {
+			return;
+		}
+
+		List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+
+		for (CartItem cartItem : cartItems) {
+			cartItemRepository.delete(cartItem);
+		}
+
+		cart.setRestaurantId(null);
+		cart.setTotalAmount(0.0);
+		cartRepository.save(cart);
+	}
 }
