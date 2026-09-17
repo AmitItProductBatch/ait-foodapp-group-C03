@@ -6,4 +6,6 @@ import com.ait.app.dto.CartResponseDTO;
 public interface CartService {
 
 	CartResponseDTO createCart(CartRequestDTO request);
+
+	CartResponseDTO getMyCart(Integer userId);
 }
