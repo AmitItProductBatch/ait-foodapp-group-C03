@@ -1,5 +1,8 @@
 package com.ait.app.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,5 +41,26 @@ public class CategoryServiceImpl implements CategoryService {
 		Category savedCategory = categoryRepository.save(category);
 
 		return new CategoryResponseDTO(savedCategory.getId(), savedCategory.getName(), savedCategory.getDescription());
+	}
+
+	@Override
+	public List<CategoryResponseDTO> getActiveCategories() {
+
+		List<Category> categories = categoryRepository.findByActiveTrueOrderByNameAsc();
+
+		List<CategoryResponseDTO> response = new ArrayList<>();
+
+		for (Category category : categories) {
+
+			CategoryResponseDTO dto = new CategoryResponseDTO();
+
+			dto.setId(category.getId());
+			dto.setName(category.getName());
+			dto.setDescription(category.getDescription());
+
+			response.add(dto);
+		}
+
+		return response;
 	}
 }
