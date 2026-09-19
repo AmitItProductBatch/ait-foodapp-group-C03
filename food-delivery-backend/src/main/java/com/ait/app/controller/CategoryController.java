@@ -34,6 +34,14 @@ public class CategoryController {
 
 		List<CategoryResponseDTO> response = categoryService.getActiveCategories();
 
-		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(60, java.util.concurrent.TimeUnit.SECONDS)).body(response);
+		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(60, java.util.concurrent.TimeUnit.SECONDS))
+				.body(response);
+	}
+
+	@DeleteMapping("/{categoryId}")
+	public ResponseEntity<Void> deactivateCategory(@PathVariable Integer categoryId) {
+		categoryService.deactivateCategory(categoryId);
+
+		return ResponseEntity.noContent().build();
 	}
 }
