@@ -36,4 +36,13 @@ public class CategoryController {
 
 		return ResponseEntity.ok().cacheControl(CacheControl.maxAge(60, java.util.concurrent.TimeUnit.SECONDS)).body(response);
 	}
+
+	@PutMapping("/{categoryId}")
+	public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable int categoryId, @RequestParam int adminId,
+			@Valid @RequestBody CategoryRequestDTO requestDTO) {
+
+		CategoryResponseDTO response = categoryService.updateCategory(categoryId, adminId, requestDTO);
+
+		return ResponseEntity.ok(response);
+	}
 }
