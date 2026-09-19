@@ -3,18 +3,27 @@ package com.ait.app.dto;
 public class MenuItemResponseDTO {
 
 	private int itemId;
+
 	private int restaurantId;
+
 	private String name;
+
 	private String description;
+
 	private Double price;
+
 	private Boolean availability;
+
 	private String category;
+
 	private String message;
 
 	public MenuItemResponseDTO() {
 	}
 
-	public MenuItemResponseDTO(int itemId,int restaurantId,String name,String description,Double price,Boolean availability,String category,String message) {
+	public MenuItemResponseDTO(int itemId, int restaurantId, String name, String description, Double price,
+			Boolean availability, String category, String message) {
+
 		this.itemId = itemId;
 		this.restaurantId = restaurantId;
 		this.name = name;
