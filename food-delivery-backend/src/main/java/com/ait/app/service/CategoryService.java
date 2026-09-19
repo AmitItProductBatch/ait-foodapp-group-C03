@@ -10,4 +10,6 @@ public interface CategoryService {
 	CategoryResponseDTO createCategory(CategoryRequestDTO requestDTO);
 
 	List<CategoryResponseDTO> getActiveCategories();
+
+	void deactivateCategory(Integer categoryId);
 }
