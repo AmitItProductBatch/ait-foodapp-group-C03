@@ -29,8 +29,7 @@ public class MenuItemController {
 	private MenuItemService menuItemService;
 
 	@PostMapping("/{restaurantId}/menu")
-	public ResponseEntity<MenuItemResponseDTO> createMenuItem(
-			@PathVariable int restaurantId,
+	public ResponseEntity<MenuItemResponseDTO> createMenuItem(@PathVariable int restaurantId,
 			@Valid @RequestBody MenuItemRequestDTO requestDTO) {
 
 		MenuItemResponseDTO response = menuItemService.createMenuItem(restaurantId, requestDTO);
@@ -63,4 +62,12 @@ public class MenuItemController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@PutMapping("/{restaurantId}/menu/{itemId}/category")
+	public ResponseEntity<MenuItemResponseDTO> assignCategory(@PathVariable Integer restaurantId,
+			@PathVariable Integer itemId, @RequestParam Integer adminId, @RequestParam Integer categoryId) {
+
+		MenuItemResponseDTO response = menuItemService.assignCategory(restaurantId, itemId, categoryId, adminId);
+
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 }

@@ -29,11 +29,13 @@ public class CategoryServiceImpl implements CategoryService {
 		String normalizedName = requestDTO.getName().trim().toLowerCase();
 
 		if (categoryRepository.existsByNameIgnoreCase(normalizedName)) {
+
 			throw new ResourceAlreadyExistsException(
 					"Category with name '" + requestDTO.getName() + "' already exists");
 		}
 
 		Category category = new Category();
+
 		category.setName(normalizedName);
 
 		if (requestDTO.getDescription() != null) {
@@ -48,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public List<CategoryResponseDTO> getActiveCategories() {
 
-		List<Category> categories = categoryRepository.findByActiveTrueOrderByNameAsc();
+		List<Category> categories = categoryRepository.findAllByOrderByNameAsc();
 
 		List<CategoryResponseDTO> response = new ArrayList<>();
 

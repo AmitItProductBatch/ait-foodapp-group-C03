@@ -19,8 +19,8 @@ public class MenuItemRequestDTO {
 	@NotNull(message = "Availability is required")
 	private Boolean availability;
 
-	@NotBlank(message = "Category is required")
-	private String category;
+	@NotNull(message = "Category ID is required")
+	private Integer categoryId;
 
 	@NotNull(message = "Admin ID is required")
 	private Integer adminId;
@@ -60,12 +60,12 @@ public class MenuItemRequestDTO {
 		this.availability = availability;
 	}
 
-	public String getCategory() {
-		return category;
+	public Integer getCategoryId() {
+		return categoryId;
 	}
 
-	public void setCategory(String category) {
-		this.category = category;
+	public void setCategoryId(Integer categoryId) {
+		this.categoryId = categoryId;
 	}
 
 	public Integer getAdminId() {

@@ -11,12 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(
-		name = "menu_items",
-		uniqueConstraints = {
-				@UniqueConstraint(columnNames = { "restaurant_id", "name" })
-		}
-)
+@Table(name = "menu_items", uniqueConstraints = { @UniqueConstraint(columnNames = { "restaurant_id", "name" }) })
 public class MenuItem {
 
 	@Id
@@ -35,24 +30,16 @@ public class MenuItem {
 	@Column(nullable = false)
 	private Boolean availability;
 
-	@Column(nullable = false)
-	private String category;
-	
+	@ManyToOne
+	@JoinColumn(name = "category_id", nullable = false)
+	private Category category;
+
 	@Column(nullable = false)
 	private Boolean deleted = false;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "restaurant_id", nullable = false)
 	private Restaurant restaurant;
-
-	
-	public Boolean getDeleted() {
-		return deleted;
-	}
-
-	public void setDeleted(Boolean deleted) {
-		this.deleted = deleted;
-	}
 
 	public MenuItem() {
 	}
@@ -97,12 +84,20 @@ public class MenuItem {
 		this.availability = availability;
 	}
 
-	public String getCategory() {
+	public Category getCategory() {
 		return category;
 	}
 
-	public void setCategory(String category) {
+	public void setCategory(Category category) {
 		this.category = category;
+	}
+
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
 	}
 
 	public Restaurant getRestaurant() {
