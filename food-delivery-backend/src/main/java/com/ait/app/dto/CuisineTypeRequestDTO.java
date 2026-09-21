@@ -13,6 +13,8 @@ public class CuisineTypeRequestDTO {
 	@Size(max = 500, message = "Cuisine description must not exceed 500 characters")
 	private String description;
 
+	private Boolean active = true;
+
 	public CuisineTypeRequestDTO() {
 	}
 
@@ -30,5 +32,13 @@ public class CuisineTypeRequestDTO {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 }

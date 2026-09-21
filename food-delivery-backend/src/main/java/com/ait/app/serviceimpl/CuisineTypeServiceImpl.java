@@ -1,5 +1,8 @@
 package com.ait.app.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +32,28 @@ public class CuisineTypeServiceImpl implements CuisineTypeService {
 
 		cuisineType.setName(name);
 		cuisineType.setDescription(requestDTO.getDescription().trim());
+		cuisineType.setActive(requestDTO.getActive() != null ? requestDTO.getActive() : true);
 
 		CuisineType savedCuisineType = cuisineTypeRepository.save(cuisineType);
 
 		return new CuisineTypeResponseDTO(savedCuisineType.getId(), savedCuisineType.getName(),
-				savedCuisineType.getDescription());
+				savedCuisineType.getDescription(), savedCuisineType.getActive());
+	}
+
+	@Override
+	public List<CuisineTypeResponseDTO> getActiveCuisineTypes() {
+		List<CuisineType> cuisineTypes = cuisineTypeRepository.findByActiveTrueOrderByNameAsc();
+		List<CuisineTypeResponseDTO> response = new ArrayList<>();
+
+		for (CuisineType cuisineType : cuisineTypes) {
+			CuisineTypeResponseDTO dto = new CuisineTypeResponseDTO();
+			dto.setId(cuisineType.getId());
+			dto.setName(cuisineType.getName());
+			dto.setDescription(cuisineType.getDescription());
+			dto.setActive(cuisineType.getActive());
+			response.add(dto);
+		}
+
+		return response;
 	}
 }
