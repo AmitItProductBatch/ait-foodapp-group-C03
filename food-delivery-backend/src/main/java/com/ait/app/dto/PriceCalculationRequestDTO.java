@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 public class PriceCalculationRequestDTO {
 
     @NotNull(message = "Item ID is required")
-   
     private Integer itemId;
 
     @NotNull(message = "Quantity is required")

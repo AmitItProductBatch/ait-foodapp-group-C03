@@ -39,7 +39,6 @@ public class PriceController {
 			@Valid @RequestBody PriceCalculationRequestDTO request) {
 
 		PriceCalculationResponseDTO response = priceService.calculatePrice(request);
-
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

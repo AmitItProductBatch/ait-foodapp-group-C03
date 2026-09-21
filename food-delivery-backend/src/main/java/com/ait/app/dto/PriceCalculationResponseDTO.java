@@ -6,13 +6,9 @@ import java.math.BigDecimal;
 public class PriceCalculationResponseDTO {
 
     private Integer itemId;
-
     private Integer quantity;
-
     private BigDecimal unitPrice;
-
     private BigDecimal discount;
-
     private BigDecimal subtotal;
 
     public PriceCalculationResponseDTO() {

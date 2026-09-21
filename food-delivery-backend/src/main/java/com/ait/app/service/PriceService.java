@@ -6,4 +6,5 @@ import com.ait.app.dto.PriceCalculationResponseDTO;
 public interface PriceService {
 
 	PriceCalculationResponseDTO calculatePrice(PriceCalculationRequestDTO request);
+	
 }

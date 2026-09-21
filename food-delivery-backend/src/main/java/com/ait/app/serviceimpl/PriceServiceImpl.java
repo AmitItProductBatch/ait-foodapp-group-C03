@@ -36,7 +36,6 @@ public class PriceServiceImpl implements PriceService {
 
 		BigDecimal finalSubtotal = subtotal.subtract(discount);
 
-		return new PriceCalculationResponseDTO(menuItem.getId(), request.getQuantity(), unitPrice, discount,
-				finalSubtotal);
+		return new PriceCalculationResponseDTO(menuItem.getId(), request.getQuantity(), unitPrice, discount,finalSubtotal);
 	}
 }
