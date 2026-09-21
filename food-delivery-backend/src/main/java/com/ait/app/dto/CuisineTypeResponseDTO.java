@@ -5,14 +5,16 @@ public class CuisineTypeResponseDTO {
 	private Long id;
 	private String name;
 	private String description;
+	private Boolean active;
 
 	public CuisineTypeResponseDTO() {
 	}
 
-	public CuisineTypeResponseDTO(Long id, String name, String description) {
+	public CuisineTypeResponseDTO(Long id, String name, String description, Boolean active) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
+		this.active = active;
 	}
 
 	public Long getId() {
@@ -37,5 +39,13 @@ public class CuisineTypeResponseDTO {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 }

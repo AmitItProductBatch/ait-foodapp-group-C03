@@ -22,12 +22,16 @@ public class CuisineType {
 	@Column(nullable = false, length = 500)
 	private String description;
 
+	@Column(nullable = false)
+	private Boolean active = true;
+
 	public CuisineType() {
 	}
 
 	public CuisineType(String name, String description) {
 		this.name = name;
 		this.description = description;
+		this.active = true;
 	}
 
 	public Long getId() {
@@ -52,5 +56,13 @@ public class CuisineType {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 }
