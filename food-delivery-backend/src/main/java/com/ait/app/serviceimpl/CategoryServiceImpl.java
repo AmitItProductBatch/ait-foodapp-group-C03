@@ -24,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -35,11 +35,13 @@ public class CategoryServiceImpl implements CategoryService {
 		String normalizedName = requestDTO.getName().trim().toLowerCase();
 
 		if (categoryRepository.existsByNameIgnoreCase(normalizedName)) {
+
 			throw new ResourceAlreadyExistsException(
 					"Category with name '" + requestDTO.getName() + "' already exists");
 		}
 
 		Category category = new Category();
+
 		category.setName(normalizedName);
 
 		if (requestDTO.getDescription() != null) {
@@ -54,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public List<CategoryResponseDTO> getActiveCategories() {
 
-		List<Category> categories = categoryRepository.findByActiveTrueOrderByNameAsc();
+		List<Category> categories = categoryRepository.findAllByOrderByNameAsc();
 
 		List<CategoryResponseDTO> response = new ArrayList<>();
 
@@ -73,10 +75,20 @@ public class CategoryServiceImpl implements CategoryService {
 	}
 
 	@Override
+	public void deactivateCategory(Integer categoryId) {
+		Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+		if (optionalCategory.isEmpty()) {
+			throw new ResourceNotFoundException("Category", categoryId);
+		}
+		Category category = optionalCategory.get();
+		category.setActive(false);
+		categoryRepository.save(category);
+	}
+
+	@Override
 	@Transactional
 	public CategoryResponseDTO updateCategory(int categoryId, int adminId, CategoryRequestDTO requestDTO) {
 
-		
 		Optional<User> adminOptional = userRepository.findById(adminId);
 
 		if (!adminOptional.isPresent()) {
@@ -85,12 +97,10 @@ public class CategoryServiceImpl implements CategoryService {
 
 		User admin = adminOptional.get();
 
-	
-		if (!"ADMIN".equalsIgnoreCase(admin.getRole())) {
+		if (admin.getRole() == null || !"ADMIN".equalsIgnoreCase(admin.getRole())) {
 			throw new InvalidRequestException("Only admin can update category");
 		}
 
-		
 		Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
 
 		if (!categoryOptional.isPresent()) {
@@ -99,10 +109,8 @@ public class CategoryServiceImpl implements CategoryService {
 
 		Category category = categoryOptional.get();
 
-		
 		String newName = requestDTO.getName().trim().toLowerCase();
 
-		
 		boolean exists = categoryRepository.existsByNameIgnoreCaseAndIdNot(newName, categoryId);
 
 		if (exists) {
@@ -110,17 +118,14 @@ public class CategoryServiceImpl implements CategoryService {
 					"Category with name '" + requestDTO.getName() + "' already exists");
 		}
 
-		
 		category.setName(newName);
 
 		if (requestDTO.getDescription() != null) {
 			category.setDescription(requestDTO.getDescription().trim());
 		}
 
-
 		Category updatedCategory = categoryRepository.save(category);
 
-	
 		CategoryResponseDTO response = new CategoryResponseDTO();
 
 		response.setId(updatedCategory.getId());

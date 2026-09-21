@@ -1,6 +1,13 @@
+
 package com.ait.app.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -21,9 +28,10 @@ public class Category {
 	private String description;
 
 	@Column(nullable = false)
-	private boolean active = true;
+	private Boolean active = true;
 
 	public Category() {
+		
 	}
 
 	public Category(String name, String description) {
@@ -56,11 +64,11 @@ public class Category {
 		this.description = description;
 	}
 
-	public boolean isActive() {
+	public Boolean getActive() {
 		return active;
 	}
 
-	public void setActive(boolean active) {
+	public void setActive(Boolean active) {
 		this.active = active;
 	}
 }
