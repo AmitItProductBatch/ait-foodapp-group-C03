@@ -1,13 +1,20 @@
 package com.ait.app.serviceimpl;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ait.app.dto.OrderTotalResponseDTO;
 import com.ait.app.dto.PriceCalculationRequestDTO;
 import com.ait.app.dto.PriceCalculationResponseDTO;
+import com.ait.app.entity.Cart;
+import com.ait.app.entity.CartItem;
 import com.ait.app.entity.MenuItem;
+import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.ResourceNotFoundException;
+import com.ait.app.repository.CartRepository;
 import com.ait.app.repository.MenuItemRepository;
 import com.ait.app.service.PriceService;
 
@@ -16,6 +23,8 @@ public class PriceServiceImpl implements PriceService {
 
 	@Autowired
 	private MenuItemRepository menuItemRepository;
+	@Autowired
+	private CartRepository cartRepository;
 
 	@Override
 	public PriceCalculationResponseDTO calculatePrice(PriceCalculationRequestDTO request) {
@@ -36,6 +45,27 @@ public class PriceServiceImpl implements PriceService {
 
 		BigDecimal finalSubtotal = subtotal.subtract(discount);
 
-		return new PriceCalculationResponseDTO(menuItem.getId(), request.getQuantity(), unitPrice, discount,finalSubtotal);
+		return new PriceCalculationResponseDTO(menuItem.getId(), request.getQuantity(), unitPrice, discount,
+				finalSubtotal);
+	}
+
+	@Override
+	public OrderTotalResponseDTO calculateOrderTotal(Integer userId) {
+		Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
+		if (optionalCart.isEmpty()) {
+			throw new ResourceNotFoundException("Cart", userId);
+		}
+		Cart cart = optionalCart.get();
+
+		if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+			throw new InvalidRequestException("Cart is empty");
+		}
+		BigDecimal total = BigDecimal.ZERO;
+		for (CartItem item : cart.getCartItems()) {
+			BigDecimal itemTotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+			total = total.add(itemTotal);
+		}
+
+		return new OrderTotalResponseDTO(total);
 	}
 }
