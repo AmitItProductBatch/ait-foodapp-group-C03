@@ -1,3 +1,4 @@
+
 package com.ait.app.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ait.app.dto.DeliveryFeeRequestDTO;
+import com.ait.app.dto.DeliveryFeeResponseDTO;
 import com.ait.app.dto.OrderTotalResponseDTO;
 import com.ait.app.dto.PriceCalculationRequestDTO;
 import com.ait.app.dto.PriceCalculationResponseDTO;
@@ -49,5 +52,13 @@ public class PriceController {
 		OrderTotalResponseDTO response = priceService.calculateOrderTotal(userId);
 
 		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("/delivery-fee")
+	public ResponseEntity<DeliveryFeeResponseDTO> calculateDeliveryFee(
+			@Valid @RequestBody DeliveryFeeRequestDTO request) {
+
+		DeliveryFeeResponseDTO response = priceService.calculateDeliveryFee(request);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }
