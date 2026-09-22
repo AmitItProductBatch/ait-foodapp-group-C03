@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ait.app.dto.OrderTotalResponseDTO;
 import com.ait.app.dto.PriceCalculationRequestDTO;
 import com.ait.app.dto.PriceCalculationResponseDTO;
 import com.ait.app.dto.PriceResponseDTO;
@@ -40,5 +42,12 @@ public class PriceController {
 
 		PriceCalculationResponseDTO response = priceService.calculatePrice(request);
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@PostMapping("/order-total")
+	public ResponseEntity<OrderTotalResponseDTO> calculateOrderTotal(@RequestParam Integer userId) {
+		OrderTotalResponseDTO response = priceService.calculateOrderTotal(userId);
+
+		return ResponseEntity.ok(response);
 	}
 }
