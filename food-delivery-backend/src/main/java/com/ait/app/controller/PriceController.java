@@ -74,6 +74,7 @@ public class PriceController {
 	public ResponseEntity<DeliveryFeeRuleResponseDTO> getActiveDeliveryRules() {
 		DeliveryFeeRuleResponseDTO response = deliveryFeeRuleService.getActiveDeliveryRules();
 		return ResponseEntity.ok(response);
+	}
 	@PostMapping("/delivery-fee")
 	public ResponseEntity<DeliveryFeeResponseDTO> calculateDeliveryFee(
 			@Valid @RequestBody DeliveryFeeRequestDTO request) {
