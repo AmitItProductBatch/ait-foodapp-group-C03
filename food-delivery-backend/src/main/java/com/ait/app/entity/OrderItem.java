@@ -2,6 +2,8 @@ package com.ait.app.entity;
 
 import java.math.BigDecimal;
 
+import org.hibernate.annotations.Check;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -25,13 +27,15 @@ public class OrderItem {
 	@Column(name = "menu_item_id", nullable = false)
 	private Integer menuItemId;
 
-	@Column(name = "item_name", nullable = false, length = 200)
-	private String itemName;
+	@Column(name = "item_name_snapshot", nullable = false, length = 200)
+	private String itemNameSnapshot;
 
 	@Column(name = "unit_price", nullable = false, precision = 12, scale = 2)
+	@Check(name = "check_unit_price_non_negative", constraints = "unit_price >= 0")
 	private BigDecimal unitPrice;
 
 	@Column(name = "quantity", nullable = false)
+	@Check(name = "check_quantity_positive", constraints = "quantity >= 1")
 	private Integer quantity;
 
 	@Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
@@ -43,6 +47,14 @@ public class OrderItem {
 	private Order order;
 
 	public OrderItem() {
+	}
+
+	public OrderItem(Integer menuItemId, String itemNameSnapshot, BigDecimal unitPrice, Integer quantity) {
+		this.menuItemId = menuItemId;
+		this.itemNameSnapshot = itemNameSnapshot;
+		this.unitPrice = unitPrice;
+		this.quantity = quantity;
+		this.calculateSubtotal();
 	}
 
 	public Integer getId() {
@@ -61,20 +73,12 @@ public class OrderItem {
 		this.menuItemId = menuItemId;
 	}
 
-	public String getItemName() {
-		return itemName;
-	}
-
-	public void setItemName(String itemName) {
-		this.itemName = itemName;
+	public String getItemNameSnapshot() {
+		return itemNameSnapshot;
 	}
 
 	public BigDecimal getUnitPrice() {
 		return unitPrice;
-	}
-
-	public void setUnitPrice(BigDecimal unitPrice) {
-		this.unitPrice = unitPrice;
 	}
 
 	public Integer getQuantity() {
@@ -83,14 +87,19 @@ public class OrderItem {
 
 	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
+		this.calculateSubtotal();
 	}
 
 	public BigDecimal getSubtotal() {
 		return subtotal;
 	}
 
-	public void setSubtotal(BigDecimal subtotal) {
-		this.subtotal = subtotal;
+	private void calculateSubtotal() {
+		if (unitPrice != null && quantity != null) {
+			this.subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+		} else {
+			this.subtotal = BigDecimal.ZERO;
+		}
 	}
 
 	public Order getOrder() {
