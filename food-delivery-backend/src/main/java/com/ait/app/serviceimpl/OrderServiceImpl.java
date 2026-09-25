@@ -3,24 +3,41 @@ package com.ait.app.serviceimpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.ait.app.dto.OrderValidationItemDTO;
+import com.ait.app.dto.OrderValidationRequestDTO;
+import com.ait.app.dto.OrderValidationResponseDTO;
+import com.ait.app.exception.InvalidRequestException;
 import com.ait.app.dto.OrderItemRequestDTO;
 import com.ait.app.dto.OrderRequestDTO;
 import com.ait.app.dto.OrderResponseDTO;
+
 import com.ait.app.entity.Order;
 import com.ait.app.entity.OrderItem;
 import com.ait.app.repository.OrderRepository;
 import com.ait.app.service.OrderService;
+import com.ait.app.service.OrderValidationService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private OrderRepository orderRepository;
+	@Autowired
+	private OrderValidationService orderValidationService;
 
 	@Override
 	@Transactional
 	public OrderResponseDTO createOrder(OrderRequestDTO request) {
+
+		OrderValidationRequestDTO validationRequest = createValidationRequest(request);
+		OrderValidationResponseDTO validateResponse = orderValidationService.validateOrder(validationRequest);
+		if (!validateResponse.isValid()) {
+			String errorMessage = String.join(", ", validateResponse.getErrors());
+			throw new InvalidRequestException(errorMessage);
+		}
 
 		Order order = new Order();
 
@@ -28,11 +45,6 @@ public class OrderServiceImpl implements OrderService {
 		order.setRestaurantId(request.getRestaurantId());
 		order.setDeliveryAddressSnapshot(request.getDeliveryAddressSnapshot());
 		order.setTotalAmount(request.getTotalAmount());
-
-		/*
-		 * status automatically remains PLACED paymentStatus automatically remains
-		 * PENDING
-		 */
 
 		for (OrderItemRequestDTO itemRequest : request.getOrderItems()) {
 
@@ -50,6 +62,35 @@ public class OrderServiceImpl implements OrderService {
 		Order savedOrder = orderRepository.save(order);
 
 		return convertToResponse(savedOrder);
+	}
+
+	private OrderValidationRequestDTO createValidationRequest(OrderRequestDTO request) {
+
+		OrderValidationRequestDTO validationRequest = new OrderValidationRequestDTO();
+
+		validationRequest.setUserId(request.getUserId());
+
+		validationRequest.setRestaurantId(request.getRestaurantId());
+
+		List<OrderValidationItemDTO> validationItems = new ArrayList<>();
+
+		for (OrderItemRequestDTO itemRequest : request.getOrderItems()) {
+
+			OrderValidationItemDTO item = new OrderValidationItemDTO();
+
+			item.setMenuItemId(itemRequest.getMenuItemId());
+
+			item.setQuantity(itemRequest.getQuantity());
+
+			item.setUnitPrice(itemRequest.getUnitPrice());
+
+			validationItems.add(item);
+		}
+
+		validationRequest.setItems(validationItems);
+
+		return validationRequest;
+
 	}
 
 	private OrderResponseDTO convertToResponse(Order order) {
