@@ -12,20 +12,16 @@ public class OrderItemRequestDTO {
 	@NotNull(message = "Menu item ID is required")
 	private Integer menuItemId;
 
-	@NotBlank(message = "Item name is required")
-	private String itemName;
+	@NotBlank(message = "Item name snapshot is required")
+	private String itemNameSnapshot;
 
 	@NotNull(message = "Unit price is required")
-	@DecimalMin(value = "0.01", message = "Unit price must be greater than 0")
+	@DecimalMin(value = "0.0", inclusive = true, message = "Unit price must be non-negative")
 	private BigDecimal unitPrice;
 
 	@NotNull(message = "Quantity is required")
-	@Positive(message = "Quantity must be greater than 0")
+	@Positive(message = "Quantity must be at least 1")
 	private Integer quantity;
-
-	@NotNull(message = "Subtotal is required")
-	@DecimalMin(value = "0.01", message = "Subtotal must be greater than 0")
-	private BigDecimal subtotal;
 
 	public Integer getMenuItemId() {
 		return menuItemId;
@@ -35,12 +31,12 @@ public class OrderItemRequestDTO {
 		this.menuItemId = menuItemId;
 	}
 
-	public String getItemName() {
-		return itemName;
+	public String getItemNameSnapshot() {
+		return itemNameSnapshot;
 	}
 
-	public void setItemName(String itemName) {
-		this.itemName = itemName;
+	public void setItemNameSnapshot(String itemNameSnapshot) {
+		this.itemNameSnapshot = itemNameSnapshot;
 	}
 
 	public BigDecimal getUnitPrice() {
@@ -59,11 +55,4 @@ public class OrderItemRequestDTO {
 		this.quantity = quantity;
 	}
 
-	public BigDecimal getSubtotal() {
-		return subtotal;
-	}
-
-	public void setSubtotal(BigDecimal subtotal) {
-		this.subtotal = subtotal;
-	}
 }

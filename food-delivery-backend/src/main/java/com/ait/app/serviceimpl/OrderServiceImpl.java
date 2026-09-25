@@ -48,13 +48,12 @@ public class OrderServiceImpl implements OrderService {
 
 		for (OrderItemRequestDTO itemRequest : request.getOrderItems()) {
 
-			OrderItem item = new OrderItem();
-
-			item.setMenuItemId(itemRequest.getMenuItemId());
-			item.setItemName(itemRequest.getItemName());
-			item.setUnitPrice(itemRequest.getUnitPrice());
-			item.setQuantity(itemRequest.getQuantity());
-			item.setSubtotal(itemRequest.getSubtotal());
+			OrderItem item = new OrderItem(
+				itemRequest.getMenuItemId(),
+				itemRequest.getItemNameSnapshot(),
+				itemRequest.getUnitPrice(),
+				itemRequest.getQuantity()
+			);
 
 			order.addOrderItem(item);
 		}
