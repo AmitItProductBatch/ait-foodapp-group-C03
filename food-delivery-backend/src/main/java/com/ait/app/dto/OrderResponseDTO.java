@@ -16,6 +16,7 @@ public class OrderResponseDTO {
 	private BigDecimal totalAmount;
 	private OrderStatus status;
 	private PaymentStatus paymentStatus;
+	private String paymentMethod;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private List<OrderItemRequestDTO> orderItems;
@@ -74,6 +75,14 @@ public class OrderResponseDTO {
 
 	public void setPaymentStatus(PaymentStatus paymentStatus) {
 		this.paymentStatus = paymentStatus;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
 	}
 
 	public LocalDateTime getCreatedAt() {
