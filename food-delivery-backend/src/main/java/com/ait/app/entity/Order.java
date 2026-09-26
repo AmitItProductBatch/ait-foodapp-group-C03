@@ -54,6 +54,9 @@ public class Order {
 	@Column(name = "payment_status", nullable = false, length = 30)
 	private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
+	@Column(name = "payment_method", nullable = false, length = 50)
+	private String paymentMethod;
+
 	@CreatedDate
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -124,6 +127,14 @@ public class Order {
 
 	public void setPaymentStatus(PaymentStatus paymentStatus) {
 		this.paymentStatus = paymentStatus;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
 	}
 
 	public LocalDateTime getCreatedAt() {
