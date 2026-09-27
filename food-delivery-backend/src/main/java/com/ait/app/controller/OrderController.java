@@ -25,4 +25,11 @@ public class OrderController {
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
+
+	@PutMapping("/{orderId}/cancel")
+	public ResponseEntity<OrderResponseDTO> cancelOrder(@PathVariable Integer orderId, @RequestParam Integer userId) {
+		OrderResponseDTO response = orderService.cancelOrder(orderId, userId);
+
+		return ResponseEntity.ok(response);
+	}
 }

@@ -24,6 +24,7 @@ import com.ait.app.enums.OrderStatus;
 import com.ait.app.enums.PaymentStatus;
 import com.ait.app.exception.InvalidRequestException;
 import com.ait.app.exception.ResourceNotFoundException;
+import com.ait.app.exception.UnauthorizedActionException;
 import com.ait.app.repository.AddressRepository;
 import com.ait.app.repository.CartItemRepository;
 import com.ait.app.repository.CartRepository;
@@ -32,6 +33,7 @@ import com.ait.app.repository.OrderRepository;
 import com.ait.app.service.CartService;
 import com.ait.app.service.OrderService;
 import com.ait.app.service.OrderValidationService;
+import com.ait.app.exception.OrderCancellationException;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -241,5 +243,33 @@ public class OrderServiceImpl implements OrderService {
 		response.setUpdatedAt(order.getUpdatedAt());
 
 		return response;
+	}
+
+	@Override
+	@Transactional
+	public OrderResponseDTO cancelOrder(Integer orderId, Integer userId) {
+		Optional<Order> optionalOrder = orderRepository.findById(orderId);
+
+		if (optionalOrder.isEmpty()) {
+			throw new ResourceNotFoundException("Order not found with id: " + orderId);
+		}
+		Order order = optionalOrder.get();
+
+		if (!order.getUserId().equals(userId)) {
+			throw new UnauthorizedActionException("You are not authorized to cancel this order");
+		}
+
+		if (order.getStatus() != OrderStatus.PLACED && order.getStatus() != OrderStatus.CONFIRMED) {
+			throw new OrderCancellationException(
+					"Order cannot be cancelled because its current status is" + order.getStatus());
+		}
+		order.setStatus(OrderStatus.CANCELLED);
+
+		if (order.getPaymentStatus() == PaymentStatus.PAID) {
+			order.setPaymentStatus(PaymentStatus.REFUNDED);
+		}
+		Order savedOrder = orderRepository.save(order);
+
+		return convertToResponse(savedOrder);
 	}
 }

@@ -6,5 +6,7 @@ import com.ait.app.dto.OrderResponseDTO;
 public interface OrderService {
 
 	OrderResponseDTO createOrder(OrderRequestDTO request);
-	
+
+	OrderResponseDTO cancelOrder(Integer orderId, Integer userId);
+
 }
