@@ -1,14 +1,21 @@
 package com.ait.app.serviceimpl;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ait.app.dto.OrderHistoryDTO;
+import com.ait.app.dto.OrderHistoryResponseDTO;
 import com.ait.app.dto.OrderRequestDTO;
 import com.ait.app.dto.OrderResponseDTO;
 import com.ait.app.dto.OrderValidationItemDTO;
@@ -23,6 +30,7 @@ import com.ait.app.entity.OrderItem;
 import com.ait.app.enums.OrderStatus;
 import com.ait.app.enums.PaymentStatus;
 import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.OrderCancellationException;
 import com.ait.app.exception.ResourceNotFoundException;
 import com.ait.app.exception.UnauthorizedActionException;
 import com.ait.app.repository.AddressRepository;
@@ -33,14 +41,14 @@ import com.ait.app.repository.OrderRepository;
 import com.ait.app.service.CartService;
 import com.ait.app.service.OrderService;
 import com.ait.app.service.OrderValidationService;
-import com.ait.app.exception.OrderCancellationException;
+
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private OrderRepository orderRepository;
-
+	
 	@Autowired
 	private OrderValidationService orderValidationService;
 
@@ -243,6 +251,75 @@ public class OrderServiceImpl implements OrderService {
 		response.setUpdatedAt(order.getUpdatedAt());
 
 		return response;
+	}
+
+	@Override
+	public OrderHistoryResponseDTO getUserOrderHistory(Integer userId, String status, LocalDateTime fromDate,
+			LocalDateTime toDate, int page, int size) {
+
+		if (page < 0) {
+			page = 0;
+		}
+
+		if (size <= 0) {
+			size = 10;
+		}
+
+		if (size > 100) {
+			size = 100;
+		}
+
+		Pageable pageable = PageRequest.of(page, size);
+
+		Page<Order> orderPage;
+
+		OrderStatus orderStatus = null;
+
+		if (status != null && !status.isBlank()) {
+			try {
+				orderStatus = OrderStatus.valueOf(status.trim().toUpperCase());
+			} catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException("Invalid order status: " + status);
+			}
+		}
+
+		if (orderStatus != null && fromDate != null && toDate != null) {
+
+			orderPage = orderRepository.findByUserIdAndStatusAndCreatedAtBetweenOrderByCreatedAtDesc(userId,
+					orderStatus, fromDate, toDate, pageable);
+
+		}
+
+		else if (orderStatus != null) {
+
+			orderPage = orderRepository.findByUserIdAndStatusOrderByCreatedAtDesc(userId, orderStatus, pageable);
+
+		}
+
+		else if (fromDate != null && toDate != null) {
+
+			orderPage = orderRepository.findByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(userId, fromDate, toDate,
+					pageable);
+
+		}
+
+		else {
+
+			orderPage = orderRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+		}
+
+		List<OrderHistoryDTO> orders = orderPage.getContent().stream().map(this::convertToHistoryDTO)
+				.collect(Collectors.toList());
+
+		return new OrderHistoryResponseDTO(orders, orderPage.getNumber(), orderPage.getSize(),
+				orderPage.getTotalElements(), orderPage.getTotalPages());
+	}
+
+	private OrderHistoryDTO convertToHistoryDTO(Order order) {
+
+		return new OrderHistoryDTO(order.getId(), order.getUserId(), order.getRestaurantId(), order.getTotalAmount(),
+				order.getStatus().toString(), order.getPaymentStatus().toString(), order.getCreatedAt(),
+				order.getUpdatedAt());
 	}
 
 	@Override
