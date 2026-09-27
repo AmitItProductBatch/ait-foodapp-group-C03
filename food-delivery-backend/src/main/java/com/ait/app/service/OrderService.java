@@ -1,10 +1,12 @@
+
 package com.ait.app.service;
 
-import com.ait.app.dto.OrderRequestDTO;
-import com.ait.app.dto.OrderResponseDTO;
+import java.time.LocalDateTime;
+
+import com.ait.app.dto.OrderHistoryResponseDTO;
 
 public interface OrderService {
 
-	OrderResponseDTO createOrder(OrderRequestDTO request);
-	
+	OrderHistoryResponseDTO getUserOrderHistory(Integer userId, String status, LocalDateTime fromDate,
+			LocalDateTime toDate, int page, int size);
 }
