@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ait.app.dto.OrderHistoryResponseDTO;
 import com.ait.app.dto.OrderStatusUpdateDTO;
 import com.ait.app.dto.OrderStatusUpdateResponseDTO;
+import com.ait.app.dto.OrderRequestDTO;
+import com.ait.app.dto.OrderResponseDTO;
 import com.ait.app.service.OrderService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -28,6 +35,15 @@ public class OrderController {
 
 	@Autowired
 	private OrderService orderService;
+	
+	@PostMapping
+	public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO request) {
+
+		OrderResponseDTO response = orderService.createOrder(request);
+
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+
 
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<OrderHistoryResponseDTO> getUserOrderHistory(@PathVariable Integer userId,

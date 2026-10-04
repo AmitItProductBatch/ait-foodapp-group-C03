@@ -106,4 +106,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 		return description;
 	}
+
+	@ExceptionHandler(OrderCancellationException.class)
+	public ResponseEntity<ErrorResponse> handlerOrderCancellation(OrderCancellationException ex, WebRequest request) {
+		return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request);
+	}
 }
