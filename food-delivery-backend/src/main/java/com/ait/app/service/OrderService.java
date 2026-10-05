@@ -3,6 +3,7 @@ package com.ait.app.service;
 
 import java.time.LocalDateTime;
 
+import com.ait.app.dto.OrderDetailDTO;
 import com.ait.app.dto.OrderHistoryResponseDTO;
 import com.ait.app.dto.OrderStatusUpdateDTO;
 import com.ait.app.dto.OrderStatusUpdateResponseDTO;
@@ -22,4 +23,6 @@ public interface OrderService {
 
 	OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, OrderStatusUpdateDTO statusUpdateDTO, Integer userId,
 			String userRole);
+
+	OrderDetailDTO getOrderById(Integer orderId, Integer userId, String userRole);
 }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ait.app.dto.OrderDetailDTO;
 import com.ait.app.dto.OrderHistoryResponseDTO;
 import com.ait.app.dto.OrderStatusUpdateDTO;
 import com.ait.app.dto.OrderStatusUpdateResponseDTO;
@@ -72,6 +73,16 @@ public class OrderController {
 
 		OrderStatusUpdateResponseDTO response = orderService.updateOrderStatus(orderId, statusUpdateDTO, userId,
 				userRole);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@GetMapping("/{orderId}")
+	public ResponseEntity<OrderDetailDTO> getOrderById(@PathVariable Integer orderId,
+			@RequestHeader(value = "X-User-Id", required = false) Integer userId,
+			@RequestHeader(value = "X-User-Role", required = false, defaultValue = "USER") String userRole) {
+
+		OrderDetailDTO response = orderService.getOrderById(orderId, userId, userRole);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

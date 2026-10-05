@@ -77,8 +77,16 @@ public class OrderItem {
 		return itemNameSnapshot;
 	}
 
+	public void setItemNameSnapshot(String itemNameSnapshot) {
+		this.itemNameSnapshot = itemNameSnapshot;
+	}
+
 	public BigDecimal getUnitPrice() {
 		return unitPrice;
+	}
+
+	public void setUnitPrice(BigDecimal unitPrice) {
+		this.unitPrice = unitPrice;
 	}
 
 	public Integer getQuantity() {
@@ -92,6 +100,10 @@ public class OrderItem {
 
 	public BigDecimal getSubtotal() {
 		return subtotal;
+	}
+
+	public void setSubtotal(BigDecimal subtotal) {
+		this.subtotal = subtotal;
 	}
 
 	private void calculateSubtotal() {
