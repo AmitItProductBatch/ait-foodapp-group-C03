@@ -22,8 +22,30 @@ public class OrderAuthorizationHelper {
 		}
 	}
 
+	public static void verifyOrderViewAuthorization(Order order, Integer userId, String userRole,
+			RestaurantRepository restaurantRepository) {
+		if (isAdmin(userRole)) {
+			return;
+		}
+
+		if (isOrderOwner(order, userId)) {
+			return;
+		}
+
+		if (isRestaurantOwner(order, userId, restaurantRepository)) {
+			return;
+		}
+
+		throw new UnauthorizedActionException(
+				"User is not authorized to view this order. Only order owner, restaurant owner, or admin can view order details.");
+	}
+
 	private static boolean isAdmin(String userRole) {
 		return ADMIN_ROLE.equalsIgnoreCase(userRole);
+	}
+
+	private static boolean isOrderOwner(Order order, Integer userId) {
+		return order.getUserId().equals(userId);
 	}
 
 	private static boolean isRestaurantOwner(Order order, Integer userId, RestaurantRepository restaurantRepository) {

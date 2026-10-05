@@ -14,11 +14,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ait.app.dto.OrderDetailDTO;
 import com.ait.app.dto.OrderHistoryDTO;
 import com.ait.app.dto.OrderHistoryResponseDTO;
+import com.ait.app.dto.OrderItemDetailDTO;
+import com.ait.app.dto.OrderStatusHistoryDTO;
 import com.ait.app.dto.OrderStatusUpdateDTO;
 import com.ait.app.dto.OrderStatusUpdateResponseDTO;
 import com.ait.app.entity.Order;
+import com.ait.app.entity.OrderItem;
 import com.ait.app.entity.OrderStatusHistory;
 import com.ait.app.enums.OrderStatus;
 import com.ait.app.exception.InvalidRequestException;
@@ -40,21 +44,13 @@ import com.ait.app.entity.Address;
 import com.ait.app.entity.Cart;
 import com.ait.app.entity.CartItem;
 import com.ait.app.entity.MenuItem;
-import com.ait.app.entity.Order;
-import com.ait.app.entity.OrderItem;
-import com.ait.app.enums.OrderStatus;
 import com.ait.app.enums.PaymentStatus;
-import com.ait.app.exception.InvalidRequestException;
 import com.ait.app.exception.OrderCancellationException;
-import com.ait.app.exception.ResourceNotFoundException;
-import com.ait.app.exception.UnauthorizedActionException;
 import com.ait.app.repository.AddressRepository;
 import com.ait.app.repository.CartItemRepository;
 import com.ait.app.repository.CartRepository;
 import com.ait.app.repository.MenuItemRepository;
-import com.ait.app.repository.OrderRepository;
 import com.ait.app.service.CartService;
-import com.ait.app.service.OrderService;
 import com.ait.app.service.OrderValidationService;
 
 
@@ -81,6 +77,11 @@ public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private CartService cartService;
+
+	@Override
+	public OrderResponseDTO cancelOrder(Integer orderId, Integer userId) {
+		throw new UnsupportedOperationException("Cancel order not implemented yet");
+	}
 
 	@Override
 	@Transactional
@@ -397,6 +398,63 @@ public class OrderServiceImpl implements OrderService {
 		dto.setPaymentMethod(order.getPaymentMethod());
 		dto.setCreatedAt(order.getCreatedAt());
 		dto.setUpdatedAt(order.getUpdatedAt());
+		return dto;
+	}
+
+	@Override
+	public OrderDetailDTO getOrderById(Integer orderId, Integer userId, String userRole) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+		OrderAuthorizationHelper.verifyOrderViewAuthorization(order, userId, userRole, restaurantRepository);
+
+		return convertToDetailDTO(order);
+	}
+
+	private OrderDetailDTO convertToDetailDTO(Order order) {
+		OrderDetailDTO dto = new OrderDetailDTO();
+		dto.setId(order.getId());
+		dto.setUserId(order.getUserId());
+		dto.setRestaurantId(order.getRestaurantId());
+		dto.setDeliveryAddressSnapshot(order.getDeliveryAddressSnapshot());
+		dto.setTotalAmount(order.getTotalAmount());
+		dto.setStatus(order.getStatus());
+		dto.setPaymentStatus(order.getPaymentStatus());
+		dto.setPaymentMethod(order.getPaymentMethod());
+		dto.setCreatedAt(order.getCreatedAt());
+		dto.setUpdatedAt(order.getUpdatedAt());
+
+		List<OrderItemDetailDTO> itemDTOs = order.getOrderItems().stream()
+				.map(this::convertToOrderItemDetailDTO)
+				.collect(Collectors.toList());
+		dto.setOrderItems(itemDTOs);
+
+		List<OrderStatusHistoryDTO> historyDTOs = order.getStatusHistory().stream()
+				.map(this::convertToStatusHistoryDTO)
+				.collect(Collectors.toList());
+		dto.setStatusHistory(historyDTOs);
+
+		return dto;
+	}
+
+	private OrderItemDetailDTO convertToOrderItemDetailDTO(OrderItem item) {
+		OrderItemDetailDTO dto = new OrderItemDetailDTO();
+		dto.setId(item.getId());
+		dto.setMenuItemId(item.getMenuItemId());
+		dto.setItemNameSnapshot(item.getItemNameSnapshot());
+		dto.setUnitPrice(item.getUnitPrice());
+		dto.setQuantity(item.getQuantity());
+		dto.setSubtotal(item.getSubtotal());
+		return dto;
+	}
+
+	private OrderStatusHistoryDTO convertToStatusHistoryDTO(OrderStatusHistory history) {
+		OrderStatusHistoryDTO dto = new OrderStatusHistoryDTO();
+		dto.setId(history.getId());
+		dto.setFromStatus(history.getFromStatus());
+		dto.setToStatus(history.getToStatus());
+		dto.setChangedAt(history.getChangedAt());
+		dto.setChangedBy(history.getChangedBy());
 		return dto;
 	}
 }

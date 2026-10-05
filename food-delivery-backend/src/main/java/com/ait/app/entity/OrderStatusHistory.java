@@ -90,6 +90,10 @@ public class OrderStatusHistory {
 		return changedAt;
 	}
 
+	public void setChangedAt(LocalDateTime changedAt) {
+		this.changedAt = changedAt;
+	}
+
 	public Integer getChangedBy() {
 		return changedBy;
 	}
