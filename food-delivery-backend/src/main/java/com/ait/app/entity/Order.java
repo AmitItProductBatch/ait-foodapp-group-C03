@@ -69,6 +69,10 @@ public class Order {
 	@JsonManagedReference
 	private List<OrderItem> orderItems = new ArrayList<>();
 
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private List<OrderStatusHistory> statusHistory = new ArrayList<>();
+
 	public Order() {
 	}
 
@@ -165,5 +169,18 @@ public class Order {
 		orderItems.remove(orderItem);
 
 		orderItem.setOrder(null);
+	}
+
+	public List<OrderStatusHistory> getStatusHistory() {
+		return statusHistory;
+	}
+
+	public void setStatusHistory(List<OrderStatusHistory> statusHistory) {
+		this.statusHistory = statusHistory;
+	}
+
+	public void addStatusHistory(OrderStatusHistory history) {
+		statusHistory.add(history);
+		history.setOrder(this);
 	}
 }

@@ -16,6 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ait.app.dto.OrderHistoryDTO;
 import com.ait.app.dto.OrderHistoryResponseDTO;
+import com.ait.app.dto.OrderStatusUpdateDTO;
+import com.ait.app.dto.OrderStatusUpdateResponseDTO;
+import com.ait.app.entity.Order;
+import com.ait.app.entity.OrderStatusHistory;
+import com.ait.app.enums.OrderStatus;
+import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.ResourceNotFoundException;
+import com.ait.app.exception.UnauthorizedActionException;
+import com.ait.app.repository.OrderRepository;
+import com.ait.app.repository.OrderStatusHistoryRepository;
+import com.ait.app.repository.RestaurantRepository;
+import com.ait.app.service.NotificationService;
+import com.ait.app.service.OrderService;
+import com.ait.app.util.OrderAuthorizationHelper;
+import com.ait.app.util.OrderStatusTransitionValidator;
 import com.ait.app.dto.OrderRequestDTO;
 import com.ait.app.dto.OrderResponseDTO;
 import com.ait.app.dto.OrderValidationItemDTO;
@@ -253,6 +268,15 @@ public class OrderServiceImpl implements OrderService {
 		return response;
 	}
 
+	@Autowired
+	private OrderStatusHistoryRepository orderStatusHistoryRepository;
+
+	@Autowired
+	private RestaurantRepository restaurantRepository;
+
+	@Autowired
+	private NotificationService notificationService;
+
 	@Override
 	public OrderHistoryResponseDTO getUserOrderHistory(Integer userId, String status, LocalDateTime fromDate,
 			LocalDateTime toDate, int page, int size) {
@@ -324,29 +348,55 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public OrderResponseDTO cancelOrder(Integer orderId, Integer userId) {
-		Optional<Order> optionalOrder = orderRepository.findById(orderId);
+	public OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, OrderStatusUpdateDTO statusUpdateDTO, Integer userId,
+			String userRole) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
-		if (optionalOrder.isEmpty()) {
-			throw new ResourceNotFoundException("Order not found with id: " + orderId);
+		OrderStatus currentStatus = order.getStatus();
+		OrderStatus newStatus = statusUpdateDTO.getStatus();
+
+		if (currentStatus == newStatus) {
+			throw new InvalidRequestException("Order is already in status: " + newStatus);
 		}
-		Order order = optionalOrder.get();
 
-		if (!order.getUserId().equals(userId)) {
-			throw new UnauthorizedActionException("You are not authorized to cancel this order");
+		if (!OrderStatusTransitionValidator.isValidTransition(currentStatus, newStatus)) {
+			throw new InvalidRequestException(OrderStatusTransitionValidator.getErrorMessage(currentStatus, newStatus));
 		}
 
-		if (order.getStatus() != OrderStatus.PLACED && order.getStatus() != OrderStatus.CONFIRMED) {
-			throw new OrderCancellationException(
-					"Order cannot be cancelled because its current status is" + order.getStatus());
+		try {
+			OrderAuthorizationHelper.verifyRestaurantOrAdminAuthorization(order, userId, userRole,
+					restaurantRepository);
+		} catch (UnauthorizedActionException e) {
+			throw e;
 		}
-		order.setStatus(OrderStatus.CANCELLED);
 
-		if (order.getPaymentStatus() == PaymentStatus.PAID) {
-			order.setPaymentStatus(PaymentStatus.REFUNDED);
-		}
-		Order savedOrder = orderRepository.save(order);
+		OrderStatus fromStatus = currentStatus;
+		order.setStatus(newStatus);
 
-		return convertToResponse(savedOrder);
+		OrderStatusHistory statusHistory = new OrderStatusHistory(order, fromStatus, newStatus, userId);
+		order.addStatusHistory(statusHistory);
+
+		orderRepository.save(order);
+		orderStatusHistoryRepository.save(statusHistory);
+
+		notificationService.sendOrderStatusUpdateNotification(order, fromStatus, newStatus);
+
+		return convertToStatusUpdateResponseDTO(order);
+	}
+
+	private OrderStatusUpdateResponseDTO convertToStatusUpdateResponseDTO(Order order) {
+		OrderStatusUpdateResponseDTO dto = new OrderStatusUpdateResponseDTO();
+		dto.setId(order.getId());
+		dto.setUserId(order.getUserId());
+		dto.setRestaurantId(order.getRestaurantId());
+		dto.setDeliveryAddressSnapshot(order.getDeliveryAddressSnapshot());
+		dto.setTotalAmount(order.getTotalAmount());
+		dto.setStatus(order.getStatus());
+		dto.setPaymentStatus(order.getPaymentStatus());
+		dto.setPaymentMethod(order.getPaymentMethod());
+		dto.setCreatedAt(order.getCreatedAt());
+		dto.setUpdatedAt(order.getUpdatedAt());
+		return dto;
 	}
 }
