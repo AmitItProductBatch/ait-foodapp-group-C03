@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ait.app.dto.MenuItemRequestDTO;
 import com.ait.app.dto.MenuItemResponseDTO;
 import com.ait.app.dto.MenuItemUpdateDTO;
+import com.ait.app.dto.RestaurantMenuResponseDTO;
 import com.ait.app.service.MenuItemService;
 
 import jakarta.validation.Valid;

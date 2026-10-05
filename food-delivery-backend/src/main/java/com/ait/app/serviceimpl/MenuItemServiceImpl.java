@@ -1,16 +1,28 @@
 package com.ait.app.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ait.app.dto.MenuCategoryDTO;
+import com.ait.app.dto.MenuItemDetailDTO;
 import com.ait.app.dto.MenuItemRequestDTO;
 import com.ait.app.dto.MenuItemResponseDTO;
 import com.ait.app.dto.MenuItemUpdateDTO;
+import com.ait.app.dto.PriceResponseDTO;
+import com.ait.app.dto.RestaurantMenuResponseDTO;
+import com.ait.app.entity.Category;
 import com.ait.app.entity.MenuItem;
 import com.ait.app.entity.Restaurant;
 import com.ait.app.entity.User;
+import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.ResourceAlreadyExistsException;
+import com.ait.app.exception.ResourceNotFoundException;
+import com.ait.app.exception.UnauthorizedActionException;
+import com.ait.app.repository.CategoryRepository;
 import com.ait.app.repository.MenuItemRepository;
 import com.ait.app.repository.RestaurantRepository;
 import com.ait.app.repository.UserRepository;

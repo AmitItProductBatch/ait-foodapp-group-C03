@@ -1,9 +1,11 @@
 package com.ait.app.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.ait.app.dto.LoginRequestDTO;
+import com.ait.app.dto.LoginResponseDTO;
 import com.ait.app.dto.UpdateProfileDto;
 import com.ait.app.dto.UserRequestDTO;
 import com.ait.app.entity.User;
@@ -13,11 +15,8 @@ import com.ait.app.service.Userservice;
 @RequestMapping("/api/users")
 public class UserController {
 
+	@Autowired
 	private Userservice userService;
-
-	public UserController(Userservice userService) {
-		this.userService = userService;
-	}
 
 	@PostMapping("/register")
 	public ResponseEntity<User> registerUser(@RequestBody UserRequestDTO dto) {
@@ -26,9 +25,11 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<User> login(@RequestBody LoginRequestDTO dto) {
-		User user = userService.login(dto);
-		return ResponseEntity.ok(user);
+	public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto) {
+
+		LoginResponseDTO response = userService.login(dto);
+
+		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/{id}")
@@ -36,11 +37,11 @@ public class UserController {
 		return ResponseEntity.ok(userService.getUser(id));
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<User> updateUser(@PathVariable int id,@RequestBody UpdateProfileDto dto) {
-		User user = userService.updateProfile(id, dto);
-		return ResponseEntity.ok(user);
-	}
+		@PutMapping("/{id}")
+		public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody UpdateProfileDto dto) {
+			User user = userService.updateProfile(id, dto);
+			return ResponseEntity.ok(user);
+		}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable int id) {

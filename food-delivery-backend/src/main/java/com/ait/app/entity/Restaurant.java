@@ -1,4 +1,3 @@
-
 package com.ait.app.entity;
 
 import jakarta.persistence.Column;
@@ -30,6 +29,9 @@ public class Restaurant {
     @Column(nullable = false)
     private String contact;
 
+    @Column(nullable = false)
+    private String hours;
+
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
@@ -39,7 +41,7 @@ public class Restaurant {
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private Boolean active = false;
-    
+
     @Column
 	private Double rating;
 
@@ -86,6 +88,14 @@ public class Restaurant {
         this.contact = contact;
     }
 
+    public String getHours() {
+        return hours;
+    }
+
+    public void setHours(String hours) {
+        this.hours = hours;
+    }
+
     public User getOwner() {
         return owner;
     }
@@ -117,6 +127,4 @@ public class Restaurant {
 	public void setRating(Double rating) {
 		this.rating = rating;
 	}
-    
 }
-
