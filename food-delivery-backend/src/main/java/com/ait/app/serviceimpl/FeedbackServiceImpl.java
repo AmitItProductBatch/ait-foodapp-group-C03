@@ -1,5 +1,6 @@
 package com.ait.app.serviceimpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ait.app.dto.FeedbackRequestDTO;
 import com.ait.app.dto.FeedbackResponseDTO;
+import com.ait.app.dto.FeedbackUpdateRequestDTO;
 import com.ait.app.dto.PaginatedFeedbackResponseDTO;
 import com.ait.app.entity.Feedback;
 import com.ait.app.entity.Order;
@@ -54,8 +56,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 			throw new UnauthorizedActionException("User can only provide feedback for their own orders");
 		}
 
-		Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
-				.orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + request.getRestaurantId()));
+		Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElseThrow(
+				() -> new ResourceNotFoundException("Restaurant not found with id: " + request.getRestaurantId()));
 
 		if (restaurant.getId() != order.getRestaurantId()) {
 			throw new InvalidRequestException("Restaurant ID does not match the order's restaurant");
@@ -114,8 +116,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<Feedback> feedbackPage = feedbackRepository.findByRestaurantIdWithFilters(restaurantId, pageable);
 
-		List<FeedbackResponseDTO> feedbackDTOs = feedbackPage.getContent().stream()
-				.map(this::convertToResponseDTO)
+		List<FeedbackResponseDTO> feedbackDTOs = feedbackPage.getContent().stream().map(this::convertToResponseDTO)
 				.collect(Collectors.toList());
 
 		return new PaginatedFeedbackResponseDTO(feedbackDTOs, feedbackPage.getNumber(), feedbackPage.getSize(),
@@ -153,5 +154,31 @@ public class FeedbackServiceImpl implements FeedbackService {
 		dto.setCreatedAt(feedback.getCreatedAt());
 		dto.setUpdatedAt(feedback.getUpdatedAt());
 		return dto;
+	}
+
+	@Override
+	@Transactional
+	public FeedbackResponseDTO updateFeedback(Integer feedbackId, Integer userId, FeedbackUpdateRequestDTO request) {
+		Optional<Feedback> feedback = feedbackRepository.findById(feedbackId);
+		if (feedback.isEmpty()) {
+			throw new ResourceNotFoundException("Feedback not found with id: " + feedbackId);
+		}
+
+		Feedback feedback2 = feedback.get();
+		if (!feedback2.getUserId().equals(userId)) {
+			throw new UnauthorizedActionException("User is not authorized to edit this feedback");
+		}
+		if (Boolean.TRUE.equals(feedback2.getDeleted())) {
+			throw new InvalidRequestException("Deleted feedback can not be edited");
+		}
+		feedback2.setRating(request.getRating());
+		feedback2.setComment(request.getComment());
+		feedback2.setUpdatedAt(LocalDateTime.now());
+
+		Feedback updatedFeedback = feedbackRepository.save(feedback2);
+
+		updateRestaurantRating(feedback2.getRestaurantId());
+
+		return convertToResponseDTO(updatedFeedback);
 	}
 }
