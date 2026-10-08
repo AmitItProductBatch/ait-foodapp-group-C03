@@ -40,6 +40,9 @@ public class MenuItemServiceImpl implements MenuItemService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Override
     public MenuItemResponseDTO createMenuItem(int restaurantId, MenuItemRequestDTO requestDTO) {
 
@@ -70,12 +73,15 @@ public class MenuItemServiceImpl implements MenuItemService {
                     "Menu item with name '" + requestDTO.getName() + "' already exists in this restaurant");
         }
 
+        Category category = categoryRepository.findById(requestDTO.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
         MenuItem menuItem = new MenuItem();
         menuItem.setName(requestDTO.getName());
         menuItem.setDescription(requestDTO.getDescription());
         menuItem.setPrice(requestDTO.getPrice());
         menuItem.setAvailability(requestDTO.getAvailability());
-        menuItem.setCategory(requestDTO.getCategory());
+        menuItem.setCategory(category);
         menuItem.setRestaurant(restaurant);
 
         MenuItem savedItem = menuItemRepository.save(menuItem);
@@ -87,7 +93,7 @@ public class MenuItemServiceImpl implements MenuItemService {
                 savedItem.getDescription(),
                 savedItem.getPrice(),
                 savedItem.getAvailability(),
-                savedItem.getCategory(),
+                savedItem.getCategory() != null ? savedItem.getCategory().getName() : null,
                 "Menu item created successfully");
     }
 
@@ -123,7 +129,7 @@ public class MenuItemServiceImpl implements MenuItemService {
                 savedItem.getDescription(),
                 savedItem.getPrice(),
                 savedItem.getAvailability(),
-                savedItem.getCategory(),
+                savedItem.getCategory() != null ? savedItem.getCategory().getName() : null,
                 "Menu item updated successfully");
     }
 
@@ -163,5 +169,13 @@ public class MenuItemServiceImpl implements MenuItemService {
         menuItemRepository.delete(menuItem);
 
         return true;
+    }
+
+    @Override
+    public PriceResponseDTO getItemPrice(int itemId) {
+        MenuItem menuItem = menuItemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Menu item not found with id: " + itemId));
+
+        return new PriceResponseDTO(menuItem.getId(), menuItem.getName(), menuItem.getPrice());
     }
 }

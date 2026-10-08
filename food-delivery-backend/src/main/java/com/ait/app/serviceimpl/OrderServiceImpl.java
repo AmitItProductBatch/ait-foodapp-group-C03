@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,7 @@ import com.ait.app.entity.OrderItem;
 import com.ait.app.entity.OrderStatusHistory;
 import com.ait.app.enums.OrderStatus;
 import com.ait.app.exception.InvalidRequestException;
+import com.ait.app.exception.OrderCancellationException;
 import com.ait.app.exception.ResourceNotFoundException;
 import com.ait.app.exception.UnauthorizedActionException;
 import com.ait.app.repository.OrderRepository;
@@ -57,6 +60,8 @@ import com.ait.app.service.OrderValidationService;
 @Service
 public class OrderServiceImpl implements OrderService {
 
+	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
 	@Autowired
 	private OrderRepository orderRepository;
 	
@@ -79,8 +84,32 @@ public class OrderServiceImpl implements OrderService {
 	private CartService cartService;
 
 	@Override
+	@Transactional
 	public OrderResponseDTO cancelOrder(Integer orderId, Integer userId) {
-		throw new UnsupportedOperationException("Cancel order not implemented yet");
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+
+		if (!order.getUserId().equals(userId)) {
+			throw new UnauthorizedActionException("User can only cancel their own orders");
+		}
+
+		if (order.getStatus() != OrderStatus.PLACED && order.getStatus() != OrderStatus.CONFIRMED) {
+			throw new OrderCancellationException("Order cannot be cancelled in current status: " + order.getStatus());
+		}
+
+		OrderStatus fromStatus = order.getStatus();
+		order.setStatus(OrderStatus.CANCELLED);
+
+		OrderStatusHistory statusHistory = new OrderStatusHistory(order, fromStatus, OrderStatus.CANCELLED, userId);
+		order.addStatusHistory(statusHistory);
+
+		Order savedOrder = orderRepository.save(order);
+		orderStatusHistoryRepository.save(statusHistory);
+
+		logger.info("Order cancelled successfully - orderId: {}, userId: {}, previousStatus: {}", orderId, userId,
+				fromStatus);
+
+		return convertToResponse(savedOrder);
 	}
 
 	@Override
@@ -156,6 +185,9 @@ public class OrderServiceImpl implements OrderService {
 		Order savedOrder = orderRepository.save(order);
 
 		cartService.clearCart(request.getUserId());
+
+		logger.info("Order placed successfully - orderId: {}, userId: {}, restaurantId: {}", savedOrder.getId(),
+				savedOrder.getUserId(), savedOrder.getRestaurantId());
 
 		return convertToResponse(savedOrder);
 	}
@@ -382,6 +414,9 @@ public class OrderServiceImpl implements OrderService {
 		orderStatusHistoryRepository.save(statusHistory);
 
 		notificationService.sendOrderStatusUpdateNotification(order, fromStatus, newStatus);
+
+		logger.info("Order status updated - orderId: {}, fromStatus: {}, toStatus: {}, changedBy: {}", orderId,
+				fromStatus, newStatus, userId);
 
 		return convertToStatusUpdateResponseDTO(order);
 	}

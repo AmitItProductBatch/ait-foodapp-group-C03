@@ -1,5 +1,7 @@
 package com.ait.app.dto;
 
+import com.ait.app.util.LogMaskingUtil;
+
 public class UserRequestDTO {
 
 	private String name;
@@ -48,4 +50,14 @@ public class UserRequestDTO {
 		this.role = role;
 	}
 
+	@Override
+	public String toString() {
+		return "UserRequestDTO{" +
+				"name='" + name + '\'' +
+				", email='" + LogMaskingUtil.maskEmail(email) + '\'' +
+				", password='" + LogMaskingUtil.maskPassword(password) + '\'' +
+				", phonenumber='" + LogMaskingUtil.maskPhoneNumber(phonenumber) + '\'' +
+				", role='" + role + '\'' +
+				'}';
+	}
 }

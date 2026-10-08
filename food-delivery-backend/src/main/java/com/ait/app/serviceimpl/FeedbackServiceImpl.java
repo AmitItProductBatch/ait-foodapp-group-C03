@@ -19,6 +19,7 @@ import com.ait.app.dto.PaginatedFeedbackResponseDTO;
 import com.ait.app.entity.Feedback;
 import com.ait.app.entity.Order;
 import com.ait.app.entity.Restaurant;
+import com.ait.app.enums.OrderStatus;
 import com.ait.app.exception.InvalidRequestException;
 import com.ait.app.exception.ResourceNotFoundException;
 import com.ait.app.exception.UnauthorizedActionException;
@@ -54,6 +55,10 @@ public class FeedbackServiceImpl implements FeedbackService {
 
 		if (!order.getUserId().equals(request.getUserId())) {
 			throw new UnauthorizedActionException("User can only provide feedback for their own orders");
+		}
+
+		if (order.getStatus() != OrderStatus.DELIVERED) {
+			throw new InvalidRequestException("Feedback is only allowed for delivered orders");
 		}
 
 		Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElseThrow(

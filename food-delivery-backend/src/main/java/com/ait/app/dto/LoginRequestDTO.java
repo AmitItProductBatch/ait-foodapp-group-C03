@@ -1,6 +1,8 @@
 
 package com.ait.app.dto;
 
+import com.ait.app.util.LogMaskingUtil;
+
 public class LoginRequestDTO {
 
     private String email;
@@ -23,5 +25,13 @@ public class LoginRequestDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginRequestDTO{" +
+                "email='" + LogMaskingUtil.maskEmail(email) + '\'' +
+                ", password='" + LogMaskingUtil.maskPassword(password) + '\'' +
+                '}';
     }
 }

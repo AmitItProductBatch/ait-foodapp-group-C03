@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ import com.ait.app.service.Userservice;
 
 @Service
 public class UserServiceimpl implements Userservice {
+
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceimpl.class);
 
 	@Autowired
 	private UserRepository repository;
@@ -51,7 +55,10 @@ public class UserServiceimpl implements Userservice {
 		user.setRole(dto.getRole());
 		user.setActive(true);
 
-		return repository.save(user);
+		User savedUser = repository.save(user);
+		logger.info("User registered successfully - userId: {}", savedUser.getId());
+
+		return savedUser;
 	}
 
 	@Override
@@ -60,16 +67,19 @@ public class UserServiceimpl implements Userservice {
 		Optional<User> optionalUser = repository.findByEmail(dto.getEmail());
 
 		if (optionalUser.isEmpty()) {
+			logger.warn("Login failed - email not found: {}", dto.getEmail());
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
 
 		User user = optionalUser.get();
 
 		if (user.getActive() == null || !user.getActive()) {
+			logger.warn("Login failed - account deleted for userId: {}", user.getId());
 			throw new InvalidRequestException("User account is deleted");
 		}
 
 		if (!user.getPassword().equals(dto.getPassword())) {
+			logger.warn("Login failed - invalid password for userId: {}", user.getId());
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
 
@@ -104,6 +114,8 @@ public class UserServiceimpl implements Userservice {
 		}
 
 		response.setAddresses(addressList);
+
+		logger.info("Login successful - userId: {}", user.getId());
 
 		return response;
 	}
@@ -163,27 +175,27 @@ public class UserServiceimpl implements Userservice {
 			}
 
 			if (addressDto.getStreetAddress() != null) {
-				address.setStreetAddress(addressDto.getStreetAddress());
+				address.setStreetAddress(address.getStreetAddress());
 			}
 
 			if (addressDto.getApartment() != null) {
-				address.setApartment(addressDto.getApartment());
+				address.setApartment(address.getApartment());
 			}
 
 			if (addressDto.getLandmark() != null) {
-				address.setLandmark(addressDto.getLandmark());
+				address.setLandmark(address.getLandmark());
 			}
 
 			if (addressDto.getCity() != null) {
-				address.setCity(addressDto.getCity());
+				address.setCity(address.getCity());
 			}
 
 			if (addressDto.getPostalCode() != null) {
-				address.setPostalCode(addressDto.getPostalCode());
+				address.setPostalCode(address.getPostalCode());
 			}
 
 			if (addressDto.getDeliveryInstructions() != null) {
-				address.setDeliveryInstructions(addressDto.getDeliveryInstructions());
+				address.setDeliveryInstructions(address.getDeliveryInstructions());
 			}
 
 			addressRepository.save(address);
@@ -192,8 +204,8 @@ public class UserServiceimpl implements Userservice {
 		return repository.save(user);
 	}
 
-  @Override
-  public void deleteUser(int id) {
+	@Override
+	public void deleteUser(int id) {
 
 		Optional<User> optionalUser = repository.findById(id);
 

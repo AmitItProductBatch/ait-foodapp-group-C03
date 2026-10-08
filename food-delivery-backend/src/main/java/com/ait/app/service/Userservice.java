@@ -11,5 +11,11 @@ public interface Userservice {
 
     User Registeruser(UserRequestDTO dto);
 
+    LoginResponseDTO login(LoginRequestDTO dto);
+
+    User getUser(int id);
+
+    User updateProfile(int id, UpdateProfileDto dto);
+
 	void deleteUser(int id);
 }

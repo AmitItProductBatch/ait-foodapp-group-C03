@@ -1,5 +1,6 @@
 package com.ait.app.entity;
 
+import com.ait.app.util.LogMaskingUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -103,4 +104,16 @@ public class Address {
 		this.user = user;
 	}
 
+	@Override
+	public String toString() {
+		return "Address{" +
+				"id=" + id +
+				", addressLabel='" + addressLabel + '\'' +
+				", streetAddress='" + LogMaskingUtil.maskAddress(streetAddress) + '\'' +
+				", apartment='" + LogMaskingUtil.maskAddress(apartment) + '\'' +
+				", landmark='" + landmark + '\'' +
+				", city='" + city + '\'' +
+				", postalCode='" + LogMaskingUtil.maskAddress(postalCode) + '\'' +
+				'}';
+	}
 }

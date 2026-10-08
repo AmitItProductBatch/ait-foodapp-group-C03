@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.ait.app.enums.OrderStatus;
 import com.ait.app.enums.PaymentStatus;
+import com.ait.app.util.LogMaskingUtil;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -190,5 +191,19 @@ public class Order {
 	public void addStatusHistory(OrderStatusHistory history) {
 		statusHistory.add(history);
 		history.setOrder(this);
+	}
+
+	@Override
+	public String toString() {
+		return "Order{" +
+				"id=" + id +
+				", userId=" + userId +
+				", restaurantId=" + restaurantId +
+				", deliveryAddressSnapshot='" + LogMaskingUtil.maskAddress(deliveryAddressSnapshot) + '\'' +
+				", totalAmount=" + totalAmount +
+				", status=" + status +
+				", paymentStatus=" + paymentStatus +
+				", paymentMethod='" + paymentMethod + '\'' +
+				'}';
 	}
 }

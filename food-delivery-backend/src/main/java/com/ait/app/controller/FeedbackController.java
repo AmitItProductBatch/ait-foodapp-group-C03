@@ -18,7 +18,10 @@ import com.ait.app.dto.FeedbackRequestDTO;
 import com.ait.app.dto.FeedbackResponseDTO;
 import com.ait.app.dto.FeedbackUpdateRequestDTO;
 import com.ait.app.dto.PaginatedFeedbackResponseDTO;
+import com.ait.app.dto.RatingRequestDTO;
+import com.ait.app.dto.RatingResponseDTO;
 import com.ait.app.service.FeedbackService;
+import com.ait.app.service.RatingService;
 
 import jakarta.validation.Valid;
 
@@ -29,9 +32,18 @@ public class FeedbackController {
 	@Autowired
 	private FeedbackService feedbackService;
 
+	@Autowired
+	private RatingService ratingService;
+
 	@PostMapping
 	public ResponseEntity<FeedbackResponseDTO> createFeedback(@Valid @RequestBody FeedbackRequestDTO request) {
 		FeedbackResponseDTO response = feedbackService.createFeedback(request);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+
+	@PostMapping("/ratings")
+	public ResponseEntity<RatingResponseDTO> createOrUpdateRating(@Valid @RequestBody RatingRequestDTO request) {
+		RatingResponseDTO response = ratingService.createOrUpdateRating(request);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 

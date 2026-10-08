@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import com.ait.app.util.LogMaskingUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -134,5 +135,18 @@ public class User {
 
 	public void setRestaurants(List<Restaurant> restaurants) {
 		this.restaurants = restaurants;
+	}
+
+	@Override
+	public String toString() {
+		return "User{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", email='" + LogMaskingUtil.maskEmail(email) + '\'' +
+				", password='" + LogMaskingUtil.maskPassword(password) + '\'' +
+				", phonenumber='" + LogMaskingUtil.maskPhoneNumber(phonenumber) + '\'' +
+				", role='" + role + '\'' +
+				", active=" + active +
+				'}';
 	}
 }
