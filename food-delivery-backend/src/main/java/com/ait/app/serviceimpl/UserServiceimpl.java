@@ -192,8 +192,8 @@ public class UserServiceimpl implements Userservice {
 		return repository.save(user);
 	}
 
-	@Override
-	public void DeletUser(int id) {
+  @Override
+  public void deleteUser(int id) {
 
 		Optional<User> optionalUser = repository.findById(id);
 

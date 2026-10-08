@@ -11,13 +11,7 @@ public interface MenuItemService {
 
 	MenuItemResponseDTO createMenuItem(int restaurantId, MenuItemRequestDTO requestDTO);
 
-	PriceResponseDTO getItemPrice(int itemId);
-
 	MenuItemResponseDTO updateMenuItem(Integer itemId, MenuItemUpdateDTO updateDTO, Integer adminId);
 
-	void deleteMenuItem(Integer itemId, Integer adminId);
-
-	RestaurantMenuResponseDTO getRestaurantMenu(int restaurantId);
-
-	MenuItemResponseDTO assignCategory(Integer restaurantId, Integer itemId, Integer categoryId, Integer adminId);
+	boolean deleteMenuItem(Integer itemId, Integer adminId);
 }
