@@ -1,11 +1,9 @@
-
 package com.ait.app.service;
 
 import com.ait.app.dto.MenuItemRequestDTO;
 import com.ait.app.dto.MenuItemResponseDTO;
 import com.ait.app.dto.MenuItemUpdateDTO;
 import com.ait.app.dto.PriceResponseDTO;
-import com.ait.app.dto.RestaurantMenuResponseDTO;
 
 public interface MenuItemService {
 
@@ -14,4 +12,6 @@ public interface MenuItemService {
 	MenuItemResponseDTO updateMenuItem(Integer itemId, MenuItemUpdateDTO updateDTO, Integer adminId);
 
 	boolean deleteMenuItem(Integer itemId, Integer adminId);
+
+	PriceResponseDTO getItemPrice(int itemId);
 }

@@ -2,7 +2,7 @@ package com.ait.app.entity;
 
 import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.ait.app.enums.OrderStatus;
 
@@ -37,7 +37,7 @@ public class OrderStatusHistory {
 	@Column(name = "to_status", nullable = false, length = 30)
 	private OrderStatus toStatus;
 
-	@CreatedDate
+	@CreationTimestamp
 	@Column(name = "changed_at", nullable = false, updatable = false)
 	private LocalDateTime changedAt;
 
@@ -102,3 +102,4 @@ public class OrderStatusHistory {
 		this.changedBy = changedBy;
 	}
 }
+
