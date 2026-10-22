@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ import com.ait.app.service.Userservice;
 
 @Service
 public class UserServiceimpl implements Userservice {
+
+	private static final Logger log = LoggerFactory.getLogger(UserServiceimpl.class);
 
 	@Autowired
 	private UserRepository repository;
@@ -51,7 +55,11 @@ public class UserServiceimpl implements Userservice {
 		user.setRole(dto.getRole());
 		user.setActive(true);
 
-		return repository.save(user);
+		User savedUser = repository.save(user);
+
+		log.info("User registered: userId={}", savedUser.getId());
+
+		return savedUser;
 	}
 
 	@Override
@@ -60,18 +68,24 @@ public class UserServiceimpl implements Userservice {
 		Optional<User> optionalUser = repository.findByEmail(dto.getEmail());
 
 		if (optionalUser.isEmpty()) {
+			// No email in the log: it is personal data and may be an attacker's guess.
+			log.warn("Login failed: reason=UNKNOWN_ACCOUNT");
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
 
 		User user = optionalUser.get();
 
 		if (user.getActive() == null || !user.getActive()) {
+			log.warn("Login failed: userId={} reason=ACCOUNT_INACTIVE", user.getId());
 			throw new InvalidRequestException("User account is deleted");
 		}
 
 		if (!user.getPassword().equals(dto.getPassword())) {
+			log.warn("Login failed: userId={} reason=INVALID_PASSWORD", user.getId());
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
+
+		log.info("Login successful: userId={}", user.getId());
 
 		LoginResponseDTO response = new LoginResponseDTO();
 
@@ -192,8 +206,8 @@ public class UserServiceimpl implements Userservice {
 		return repository.save(user);
 	}
 
-  @Override
-  public void deleteUser(int id) {
+	@Override
+	public void deleteUser(int id) {
 
 		Optional<User> optionalUser = repository.findById(id);
 
