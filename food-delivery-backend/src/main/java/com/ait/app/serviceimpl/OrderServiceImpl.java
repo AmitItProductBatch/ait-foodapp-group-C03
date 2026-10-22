@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,13 +55,14 @@ import com.ait.app.repository.MenuItemRepository;
 import com.ait.app.service.CartService;
 import com.ait.app.service.OrderValidationService;
 
-
 @Service
 public class OrderServiceImpl implements OrderService {
 
+	private static final Logger log = LoggerFactory.getLogger(OrderServiceImpl.class);
+
 	@Autowired
 	private OrderRepository orderRepository;
-	
+
 	@Autowired
 	private OrderValidationService orderValidationService;
 
@@ -156,6 +159,9 @@ public class OrderServiceImpl implements OrderService {
 		Order savedOrder = orderRepository.save(order);
 
 		cartService.clearCart(request.getUserId());
+
+		log.info("Order placed: orderId={} userId={} restaurantId={}", savedOrder.getId(), savedOrder.getUserId(),
+				savedOrder.getRestaurantId());
 
 		return convertToResponse(savedOrder);
 	}
@@ -349,8 +355,8 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	@Transactional
-	public OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, OrderStatusUpdateDTO statusUpdateDTO, Integer userId,
-			String userRole) {
+	public OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, OrderStatusUpdateDTO statusUpdateDTO,
+			Integer userId, String userRole) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
 
@@ -382,6 +388,13 @@ public class OrderServiceImpl implements OrderService {
 		orderStatusHistoryRepository.save(statusHistory);
 
 		notificationService.sendOrderStatusUpdateNotification(order, fromStatus, newStatus);
+
+		log.info("Order status changed: orderId={} from={} to={} changedBy={}", order.getId(), fromStatus, newStatus,
+				userId);
+
+		if (newStatus == OrderStatus.CANCELLED) {
+			log.info("Order cancelled: orderId={} userId={} cancelledBy={}", order.getId(), order.getUserId(), userId);
+		}
 
 		return convertToStatusUpdateResponseDTO(order);
 	}
@@ -424,13 +437,11 @@ public class OrderServiceImpl implements OrderService {
 		dto.setCreatedAt(order.getCreatedAt());
 		dto.setUpdatedAt(order.getUpdatedAt());
 
-		List<OrderItemDetailDTO> itemDTOs = order.getOrderItems().stream()
-				.map(this::convertToOrderItemDetailDTO)
+		List<OrderItemDetailDTO> itemDTOs = order.getOrderItems().stream().map(this::convertToOrderItemDetailDTO)
 				.collect(Collectors.toList());
 		dto.setOrderItems(itemDTOs);
 
-		List<OrderStatusHistoryDTO> historyDTOs = order.getStatusHistory().stream()
-				.map(this::convertToStatusHistoryDTO)
+		List<OrderStatusHistoryDTO> historyDTOs = order.getStatusHistory().stream().map(this::convertToStatusHistoryDTO)
 				.collect(Collectors.toList());
 		dto.setStatusHistory(historyDTOs);
 
