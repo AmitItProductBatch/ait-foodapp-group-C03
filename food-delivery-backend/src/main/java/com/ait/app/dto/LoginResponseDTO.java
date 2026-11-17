@@ -4,70 +4,97 @@ import java.util.List;
 
 public class LoginResponseDTO {
 
-    private int id;
-    private String name;
-    private String email;
-    private String phonenumber;
-    private String role;
-    private boolean active;
-    private List<AdressUpdateDto> addresses;
+	private String token;
+	private String tokenType = "Bearer";
+	private long expiresInSeconds;
+	private int id;
+	private String name;
+	private String email;
+	private String phonenumber;
+	private String role;
+	private boolean active;
+	private List<AdressUpdateDto> addresses;
 
-    public LoginResponseDTO() {
-    }
+	public LoginResponseDTO() {
+	}
 
-    public int getId() {
-        return id;
-    }
+	public String getToken() {
+		return token;
+	}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+	public void setToken(String token) {
+		this.token = token;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getTokenType() {
+		return tokenType;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setTokenType(String tokenType) {
+		this.tokenType = tokenType;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public long getExpiresInSeconds() {
+		return expiresInSeconds;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setExpiresInSeconds(long expiresInSeconds) {
+		this.expiresInSeconds = expiresInSeconds;
+	}
 
-    public String getPhonenumber() {
-        return phonenumber;
-    }
+	public int getId() {
+		return id;
+	}
 
-    public void setPhonenumber(String phonenumber) {
-        this.phonenumber = phonenumber;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public String getRole() {
-        return role;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setRole(String role) {
-        this.role = role;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public boolean isActive() {
-        return active;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public List<AdressUpdateDto> getAddresses() {
-        return addresses;
-    }
+	public String getPhonenumber() {
+		return phonenumber;
+	}
 
-    public void setAddresses(List<AdressUpdateDto> addresses) {
-        this.addresses = addresses;
-    }
+	public void setPhonenumber(String phonenumber) {
+		this.phonenumber = phonenumber;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public List<AdressUpdateDto> getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(List<AdressUpdateDto> addresses) {
+		this.addresses = addresses;
+	}
 }

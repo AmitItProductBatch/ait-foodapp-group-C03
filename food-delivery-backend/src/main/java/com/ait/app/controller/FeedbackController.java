@@ -1,5 +1,8 @@
 package com.ait.app.controller;
 
+import com.ait.app.security.AppUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +32,7 @@ public class FeedbackController {
 	@Autowired
 	private FeedbackService feedbackService;
 
+	@PreAuthorize("#request.userId == principal.id")
 	@PostMapping
 	public ResponseEntity<FeedbackResponseDTO> createFeedback(@Valid @RequestBody FeedbackRequestDTO request) {
 		FeedbackResponseDTO response = feedbackService.createFeedback(request);
@@ -44,18 +48,16 @@ public class FeedbackController {
 
 	@PutMapping("/{feedbackId}")
 	public ResponseEntity<FeedbackResponseDTO> updatedFeedback(@PathVariable Integer feedbackId,
-			@RequestHeader(value = "X-User-Id", required = false) Integer userId,
-			@Valid @RequestBody FeedbackUpdateRequestDTO request) {
-		FeedbackResponseDTO response = feedbackService.updateFeedback(feedbackId, userId, request);
+			@AuthenticationPrincipal AppUserDetails currentUser, @Valid @RequestBody FeedbackUpdateRequestDTO request) {
+		FeedbackResponseDTO response = feedbackService.updateFeedback(feedbackId, currentUser.getId(), request);
 
 		return ResponseEntity.ok(response);
 	}
 
 	@DeleteMapping("/{feedbackId}")
 	public ResponseEntity<Void> deleteFeedback(@PathVariable Integer feedbackId,
-			@RequestHeader(value = "X-User-Id", required = false) Integer userId,
-			@RequestHeader(value = "X-User-Role", required = false, defaultValue = "USER") String userRole) {
-		feedbackService.deleteFeedback(feedbackId, userId, userRole);
+			@AuthenticationPrincipal AppUserDetails currentUser) {
+		feedbackService.deleteFeedback(feedbackId, currentUser.getId(), currentUser.getRole());
 		return ResponseEntity.noContent().build();
 	}
 }

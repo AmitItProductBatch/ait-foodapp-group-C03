@@ -1,6 +1,7 @@
 
 package com.ait.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,7 @@ public class PriceController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@PreAuthorize("#userId == principal.id")
 	@PostMapping("/order-total")
 	public ResponseEntity<OrderTotalResponseDTO> calculateOrderTotal(@RequestParam Integer userId) {
 		OrderTotalResponseDTO response = priceService.calculateOrderTotal(userId);
@@ -61,10 +63,10 @@ public class PriceController {
 		return ResponseEntity.ok(response);
 	}
 
+	@PreAuthorize("#adminUserId == principal.id")
 	@PutMapping("/delivery-rules")
 	public ResponseEntity<DeliveryFeeRuleResponseDTO> updateDeliveryRules(
-			@Valid @RequestBody DeliveryFeeRuleRequestDTO requestDTO,
-			@RequestParam Integer adminUserId) {
+			@Valid @RequestBody DeliveryFeeRuleRequestDTO requestDTO, @RequestParam Integer adminUserId) {
 
 		DeliveryFeeRuleResponseDTO response = deliveryFeeRuleService.updateDeliveryRules(requestDTO, adminUserId);
 		return ResponseEntity.ok(response);
@@ -75,6 +77,7 @@ public class PriceController {
 		DeliveryFeeRuleResponseDTO response = deliveryFeeRuleService.getActiveDeliveryRules();
 		return ResponseEntity.ok(response);
 	}
+
 	@PostMapping("/delivery-fee")
 	public ResponseEntity<DeliveryFeeResponseDTO> calculateDeliveryFee(
 			@Valid @RequestBody DeliveryFeeRequestDTO request) {

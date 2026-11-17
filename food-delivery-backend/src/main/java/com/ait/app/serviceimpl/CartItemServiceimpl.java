@@ -1,5 +1,8 @@
 package com.ait.app.serviceimpl;
 
+import com.ait.app.repository.MenuItemRepository;
+import com.ait.app.entity.MenuItem;
+import java.math.RoundingMode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +34,42 @@ public class CartItemServiceimpl implements CartItemService {
 	@Autowired
 	private CartRepository cartRepository;
 
+	@Autowired
+	private MenuItemRepository menuItemRepository;
+
 	@Override
-	public CartItemResponseDTO createCartItem(CartItemRequestDTO dto) {
+	public CartItemResponseDTO createCartItem(CartItemRequestDTO dto, Integer userId) {
 
 		Cart cart = cartRepository.findById(dto.getCartId()).orElse(null);
 
-		if (cart == null) {throw new ResourceNotFoundException("Cart not found");}
+		if (cart == null || !userId.equals(cart.getUserId())) {
+			throw new ResourceNotFoundException("Cart not found");
+		}
 
-		CartItem existingItem = cartItemRepository.findByCartIdAndMenuItemId(dto.getCartId(), dto.getMenuItemId()).orElse(null);
+		MenuItem menuItem = menuItemRepository.findById(dto.getMenuItemId().intValue()).orElse(null);
+
+		if (menuItem == null || Boolean.TRUE.equals(menuItem.getDeleted())) {
+			throw new ResourceNotFoundException("Menu item not found");
+		}
+
+		if (!Boolean.TRUE.equals(menuItem.getAvailability()) || menuItem.getPrice() == null) {
+			throw new InvalidRequestException("Menu item is not available");
+		}
+
+		BigDecimal unitPrice = BigDecimal.valueOf(menuItem.getPrice()).setScale(2, RoundingMode.HALF_UP);
+
+		Integer menuRestaurantId = menuItem.getRestaurant().getId();
+
+		if (cart.getRestaurantId() != null && !cart.getRestaurantId().equals(menuRestaurantId)
+				&& !cartItemRepository.findByCartId(cart.getId()).isEmpty()) {
+			throw new InvalidRequestException(
+					"Your cart has items from another restaurant. Clear the cart before adding items from this one.");
+		}
+
+		cart.setRestaurantId(menuRestaurantId);
+
+		CartItem existingItem = cartItemRepository.findByCartIdAndMenuItemId(dto.getCartId(), dto.getMenuItemId())
+				.orElse(null);
 
 		if (existingItem != null) {
 			throw new ResourceAlreadyExistsException("Menu item already exists in cart");
@@ -48,20 +79,36 @@ public class CartItemServiceimpl implements CartItemService {
 		item.setCart(cart);
 		item.setMenuItemId(dto.getMenuItemId());
 		item.setQuantity(dto.getQuantity());
-		item.setUnitPrice(dto.getUnitPrice());
+		item.setUnitPrice(unitPrice);
 
-		BigDecimal subtotal = dto.getUnitPrice().multiply(BigDecimal.valueOf(dto.getQuantity()));
+		BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(dto.getQuantity()));
 
 		item.setSubtotal(subtotal);
 
 		CartItem saved = cartItemRepository.save(item);
 
-		return new CartItemResponseDTO(
-				saved.getMenuItemId(),
-				null,
-				saved.getUnitPrice().doubleValue(),
-				saved.getQuantity(),
-				saved.getSubtotal().doubleValue());
+		double newTotal = 0.0;
+
+		for (CartItem cartItem : cartItemRepository.findByCartId(cart.getId())) {
+			newTotal += cartItem.getSubtotal().doubleValue();
+		}
+
+		cart.setTotalAmount(newTotal);
+		cartRepository.save(cart);
+
+		return toResponse(saved);
+	}
+
+	private CartItemResponseDTO toResponse(CartItem item) {
+
+		String name = menuItemRepository.findById(item.getMenuItemId().intValue()).map(MenuItem::getName).orElse(null);
+
+		CartItemResponseDTO response = new CartItemResponseDTO(item.getMenuItemId(), name,
+				item.getUnitPrice().doubleValue(), item.getQuantity(), item.getSubtotal().doubleValue());
+
+		response.setCartItemId(item.getId());
+
+		return response;
 	}
 
 	@Override
@@ -109,13 +156,7 @@ public class CartItemServiceimpl implements CartItemService {
 		List<CartItemResponseDTO> itemResponses = new ArrayList<>();
 
 		for (CartItem item : remainingItems) {
-			CartItemResponseDTO itemResponse = new CartItemResponseDTO(
-					item.getMenuItemId(),
-					null,
-					item.getUnitPrice().doubleValue(),
-					item.getQuantity(),
-					item.getSubtotal().doubleValue()
-			);
+			CartItemResponseDTO itemResponse = toResponse(item);
 			itemResponses.add(itemResponse);
 		}
 

@@ -9,4 +9,6 @@ import com.ait.app.entity.Address;
 public interface AddressRepository extends JpaRepository<Address, Integer> {
 	Optional<Address> findByIdAndUserId(int addressId, int userId);
 
+	java.util.List<Address> findByUserId(int userId);
+
 }

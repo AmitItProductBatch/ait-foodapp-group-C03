@@ -1,5 +1,6 @@
 package com.ait.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,41 +25,38 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/restaurants")
 public class MenuItemController {
 
-    @Autowired
-    private MenuItemService menuItemService;
+	@Autowired
+	private MenuItemService menuItemService;
 
-    @PostMapping("/{restaurantId}/menu")
-    public ResponseEntity<MenuItemResponseDTO> createMenuItem(
-            @PathVariable int restaurantId,
-            @Valid @RequestBody MenuItemRequestDTO requestDTO) {
+	@PostMapping("/{restaurantId}/menu")
+	public ResponseEntity<MenuItemResponseDTO> createMenuItem(@PathVariable int restaurantId,
+			@Valid @RequestBody MenuItemRequestDTO requestDTO) {
 
-        MenuItemResponseDTO response = menuItemService.createMenuItem(restaurantId, requestDTO);
+		MenuItemResponseDTO response = menuItemService.createMenuItem(restaurantId, requestDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
 
-    @PutMapping("/menu/{itemId}")
-    public ResponseEntity<MenuItemResponseDTO> updateMenuItem(
-            @PathVariable Integer itemId,
-            @Valid @RequestBody MenuItemUpdateDTO updateDTO,
-            @RequestParam Integer adminId) {
+	@PreAuthorize("#adminId == principal.id")
+	@PutMapping("/menu/{itemId}")
+	public ResponseEntity<MenuItemResponseDTO> updateMenuItem(@PathVariable Integer itemId,
+			@Valid @RequestBody MenuItemUpdateDTO updateDTO, @RequestParam Integer adminId) {
 
-        MenuItemResponseDTO response = menuItemService.updateMenuItem(itemId, updateDTO, adminId);
+		MenuItemResponseDTO response = menuItemService.updateMenuItem(itemId, updateDTO, adminId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 
-    @DeleteMapping("/menu/{itemId}")
-    public ResponseEntity<Void> deleteMenuItem(
-            @PathVariable Integer itemId,
-            @RequestParam Integer adminId) {
+	@PreAuthorize("#adminId == principal.id")
+	@DeleteMapping("/menu/{itemId}")
+	public ResponseEntity<Void> deleteMenuItem(@PathVariable Integer itemId, @RequestParam Integer adminId) {
 
-        boolean deleted = menuItemService.deleteMenuItem(itemId, adminId);
+		boolean deleted = menuItemService.deleteMenuItem(itemId, adminId);
 
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+		if (!deleted) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		}
 
-        return ResponseEntity.noContent().build();
-    }
+		return ResponseEntity.noContent().build();
+	}
 }

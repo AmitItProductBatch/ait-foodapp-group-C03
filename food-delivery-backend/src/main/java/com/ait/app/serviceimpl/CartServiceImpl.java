@@ -1,5 +1,8 @@
 package com.ait.app.serviceimpl;
 
+import com.ait.app.exception.ResourceAlreadyExistsException;
+import com.ait.app.entity.MenuItem;
+import com.ait.app.repository.MenuItemRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,12 +29,15 @@ public class CartServiceImpl implements CartService {
 	@Autowired
 	private CartItemRepository cartItemRepository;
 
+	@Autowired
+	private MenuItemRepository menuItemRepository;
+
 	@Override
 	public CartResponseDTO createCart(CartRequestDTO request) {
 
 		if (cartRepository.existsByUserId(request.getUserId())) {
 
-			throw new RuntimeException("Cart already exists for user ID: " + request.getUserId());
+			throw new ResourceAlreadyExistsException("Cart already exists for user ID: " + request.getUserId());
 		}
 
 		Cart cart = new Cart();
@@ -89,7 +95,10 @@ public class CartServiceImpl implements CartService {
 
 			Double subtotal = cartItem.getSubtotal().doubleValue();
 
-			CartItemResponseDTO itemResponse = new CartItemResponseDTO(itemId, null, unitPrice, quantity, subtotal);
+			String itemName = menuItemRepository.findById(itemId.intValue()).map(MenuItem::getName).orElse(null);
+
+			CartItemResponseDTO itemResponse = new CartItemResponseDTO(itemId, itemName, unitPrice, quantity, subtotal);
+			itemResponse.setCartItemId(cartItem.getId());
 
 			itemResponses.add(itemResponse);
 

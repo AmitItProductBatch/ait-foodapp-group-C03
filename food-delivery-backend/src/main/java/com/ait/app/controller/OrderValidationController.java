@@ -1,5 +1,6 @@
 package com.ait.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +19,10 @@ public class OrderValidationController {
 	@Autowired
 	private OrderValidationService orderValidationService;
 
+	@PreAuthorize("#request.userId == principal.id")
 	@PostMapping("/validate")
 	public ResponseEntity<OrderValidationResponseDTO> validateOrder(@RequestBody OrderValidationRequestDTO request) {
 		OrderValidationResponseDTO response = orderValidationService.validateOrder(request);
 		return ResponseEntity.ok(response);
 	}
 }
-

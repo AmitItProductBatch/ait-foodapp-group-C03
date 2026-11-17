@@ -1,5 +1,8 @@
 package com.ait.app.controller;
 
+import com.ait.app.security.AppUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +39,8 @@ public class OrderController {
 
 	@Autowired
 	private OrderService orderService;
-	
+
+	@PreAuthorize("#request.userId == principal.id")
 	@PostMapping
 	public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO request) {
 
@@ -45,7 +49,7 @@ public class OrderController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-
+	@PreAuthorize("#userId == principal.id or hasRole('ADMIN')")
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<OrderHistoryResponseDTO> getUserOrderHistory(@PathVariable Integer userId,
 
@@ -68,21 +72,28 @@ public class OrderController {
 	@PutMapping("/{orderId}/status")
 	public ResponseEntity<OrderStatusUpdateResponseDTO> updateOrderStatus(@PathVariable Integer orderId,
 			@Valid @RequestBody OrderStatusUpdateDTO statusUpdateDTO,
-			@RequestHeader(value = "X-User-Id", required = false) Integer userId,
-			@RequestHeader(value = "X-User-Role", required = false, defaultValue = "USER") String userRole) {
+			@AuthenticationPrincipal AppUserDetails currentUser) {
 
-		OrderStatusUpdateResponseDTO response = orderService.updateOrderStatus(orderId, statusUpdateDTO, userId,
-				userRole);
+		OrderStatusUpdateResponseDTO response = orderService.updateOrderStatus(orderId, statusUpdateDTO,
+				currentUser.getId(), currentUser.getRole());
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@GetMapping("/restaurant/{restaurantId}")
+	public ResponseEntity<OrderHistoryResponseDTO> getRestaurantOrders(@PathVariable Integer restaurantId,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+			@RequestParam(required = false) String status, @AuthenticationPrincipal AppUserDetails currentUser) {
+
+		return ResponseEntity.ok(orderService.getRestaurantOrders(restaurantId, currentUser.getId(),
+				currentUser.getRole(), status, page, size));
+	}
+
 	@GetMapping("/{orderId}")
 	public ResponseEntity<OrderDetailDTO> getOrderById(@PathVariable Integer orderId,
-			@RequestHeader(value = "X-User-Id", required = false) Integer userId,
-			@RequestHeader(value = "X-User-Role", required = false, defaultValue = "USER") String userRole) {
+			@AuthenticationPrincipal AppUserDetails currentUser) {
 
-		OrderDetailDTO response = orderService.getOrderById(orderId, userId, userRole);
+		OrderDetailDTO response = orderService.getOrderById(orderId, currentUser.getId(), currentUser.getRole());
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

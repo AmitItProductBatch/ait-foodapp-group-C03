@@ -7,7 +7,7 @@ import com.ait.app.dto.UpdateQuantityDTO;
 
 public interface CartItemService {
 
-    CartItemResponseDTO createCartItem(CartItemRequestDTO dto);
+	CartItemResponseDTO createCartItem(CartItemRequestDTO dto, Integer userId);
 
-    CartResponseDTO updateCartItemQuantity(Integer itemId, Integer userId, UpdateQuantityDTO dto);
+	CartResponseDTO updateCartItemQuantity(Integer itemId, Integer userId, UpdateQuantityDTO dto);
 }
