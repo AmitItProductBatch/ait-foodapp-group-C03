@@ -1,5 +1,6 @@
 package com.ait.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ public class CategoryController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@PreAuthorize("#adminId == principal.id")
 	@PutMapping("/{categoryId}")
 	public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable int categoryId, @RequestParam int adminId,
 			@Valid @RequestBody CategoryRequestDTO requestDTO) {

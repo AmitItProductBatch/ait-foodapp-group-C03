@@ -18,8 +18,7 @@ public class CartItemRequestDTO {
 	@NotNull
 	@Min(1)
 	private Integer quantity;
-	@NotNull
-	@PositiveOrZero
+	
 	private BigDecimal unitPrice;
 
 	public CartItemRequestDTO() {

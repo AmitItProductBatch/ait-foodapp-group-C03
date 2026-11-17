@@ -468,4 +468,58 @@ public class OrderServiceImpl implements OrderService {
 		dto.setChangedBy(history.getChangedBy());
 		return dto;
 	}
+
+	@Override
+	public OrderHistoryResponseDTO getRestaurantOrders(Integer restaurantId, Integer userId, String userRole,
+			String status, int page, int size) {
+
+		com.ait.app.entity.Restaurant restaurant = restaurantRepository.findById(restaurantId)
+				.orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id: " + restaurantId));
+
+		boolean admin = "ADMIN".equalsIgnoreCase(userRole);
+		boolean owner = restaurant.getOwner() != null && restaurant.getOwner().getId() == userId;
+
+		if (!admin && !owner) {
+			throw new UnauthorizedActionException("You are not authorized to view orders of this restaurant");
+		}
+
+		if (page < 0) {
+			page = 0;
+		}
+
+		if (size <= 0) {
+			size = 10;
+		}
+
+		if (size > 100) {
+			size = 100;
+		}
+
+		Pageable pageable = PageRequest.of(page, size);
+
+		Page<Order> orderPage;
+
+		if (status != null && !status.isBlank()) {
+
+			OrderStatus orderStatus;
+
+			try {
+				orderStatus = OrderStatus.valueOf(status.trim().toUpperCase());
+			} catch (IllegalArgumentException e) {
+				throw new InvalidRequestException("Invalid order status: " + status);
+			}
+
+			orderPage = orderRepository.findByRestaurantIdAndStatusOrderByCreatedAtDesc(restaurantId, orderStatus,
+					pageable);
+
+		} else {
+			orderPage = orderRepository.findByRestaurantIdOrderByCreatedAtDesc(restaurantId, pageable);
+		}
+
+		List<OrderHistoryDTO> orders = orderPage.getContent().stream().map(this::convertToHistoryDTO)
+				.collect(Collectors.toList());
+
+		return new OrderHistoryResponseDTO(orders, orderPage.getNumber(), orderPage.getSize(),
+				orderPage.getTotalElements(), orderPage.getTotalPages());
+	}
 }

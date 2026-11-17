@@ -2,6 +2,8 @@ package com.ait.app.dto;
 
 public class CartItemResponseDTO {
 
+	/** Database id of the cart row. Needed for PUT/DELETE /api/cart/items/{id}. */
+	private Integer cartItemId;
 	private Long itemId;
 
 	private String itemName;
@@ -22,6 +24,14 @@ public class CartItemResponseDTO {
 		this.unitPrice = unitPrice;
 		this.quantity = quantity;
 		this.subtotal = subtotal;
+	}
+
+	public Integer getCartItemId() {
+		return cartItemId;
+	}
+
+	public void setCartItemId(Integer cartItemId) {
+		this.cartItemId = cartItemId;
 	}
 
 	public Long getItemId() {

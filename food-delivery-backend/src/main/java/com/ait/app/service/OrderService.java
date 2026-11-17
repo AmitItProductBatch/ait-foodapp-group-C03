@@ -10,9 +10,7 @@ import com.ait.app.dto.OrderStatusUpdateResponseDTO;
 import com.ait.app.dto.OrderRequestDTO;
 import com.ait.app.dto.OrderResponseDTO;
 
-
 public interface OrderService {
-
 
 	OrderResponseDTO createOrder(OrderRequestDTO request);
 
@@ -21,8 +19,11 @@ public interface OrderService {
 	OrderHistoryResponseDTO getUserOrderHistory(Integer userId, String status, LocalDateTime fromDate,
 			LocalDateTime toDate, int page, int size);
 
-	OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, OrderStatusUpdateDTO statusUpdateDTO, Integer userId,
-			String userRole);
+	OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, OrderStatusUpdateDTO statusUpdateDTO,
+			Integer userId, String userRole);
 
 	OrderDetailDTO getOrderById(Integer orderId, Integer userId, String userRole);
+
+	OrderHistoryResponseDTO getRestaurantOrders(Integer restaurantId, Integer userId, String userRole, String status,
+			int page, int size);
 }

@@ -1,5 +1,6 @@
 package com.ait.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,20 +33,23 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 
+	@PreAuthorize("#id == principal.id or hasRole('ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<User> getUser(@PathVariable int id) {
 		return ResponseEntity.ok(userService.getUser(id));
 	}
 
-		@PutMapping("/{id}")
-		public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody UpdateProfileDto dto) {
-			User user = userService.updateProfile(id, dto);
-			return ResponseEntity.ok(user);
-		}
+	@PreAuthorize("#id == principal.id")
+	@PutMapping("/{id}")
+	public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody UpdateProfileDto dto) {
+		User user = userService.updateProfile(id, dto);
+		return ResponseEntity.ok(user);
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
+	@PreAuthorize("#id == principal.id or hasRole('ADMIN')")
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteUser(@PathVariable int id) {
+		userService.deleteUser(id);
+		return ResponseEntity.noContent().build();
+	}
 }

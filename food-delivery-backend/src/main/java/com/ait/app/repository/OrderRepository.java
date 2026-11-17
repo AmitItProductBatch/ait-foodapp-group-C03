@@ -12,6 +12,11 @@ import com.ait.app.enums.OrderStatus;
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
+	Page<Order> findByRestaurantIdOrderByCreatedAtDesc(Integer restaurantId, Pageable pageable);
+
+	Page<Order> findByRestaurantIdAndStatusOrderByCreatedAtDesc(Integer restaurantId,
+			com.ait.app.enums.OrderStatus status, Pageable pageable);
+
 	Page<Order> findByUserIdOrderByCreatedAtDesc(Integer userId, Pageable pageable);
 
 	Page<Order> findByUserIdAndStatusOrderByCreatedAtDesc(Integer userId, OrderStatus status, Pageable pageable);

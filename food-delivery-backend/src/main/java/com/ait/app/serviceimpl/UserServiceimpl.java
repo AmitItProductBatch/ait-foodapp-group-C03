@@ -1,12 +1,17 @@
 package com.ait.app.serviceimpl;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ait.app.dto.AdressUpdateDto;
@@ -22,6 +27,7 @@ import com.ait.app.exception.ResourceAlreadyExistsException;
 import com.ait.app.exception.ResourceNotFoundException;
 import com.ait.app.repository.AddressRepository;
 import com.ait.app.repository.UserRepository;
+import com.ait.app.security.JwtUtil;
 import com.ait.app.service.Userservice;
 
 @Service
@@ -35,6 +41,14 @@ public class UserServiceimpl implements Userservice {
 	@Autowired
 	private AddressRepository addressRepository;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private JwtUtil jwtUtil;
+
+	private static final Set<String> SELF_REGISTRATION_ROLES = Set.of("USER", "PARTNER");
+
 	@Override
 	public User Registeruser(UserRequestDTO dto) {
 
@@ -46,13 +60,26 @@ public class UserServiceimpl implements Userservice {
 			throw new ResourceAlreadyExistsException("Mobile number already exists");
 		}
 
+		String password = dto.getPassword();
+
+		if (password == null || password.length() < 8 || password.getBytes(StandardCharsets.UTF_8).length > 72) {
+			throw new InvalidRequestException("Password must be between 8 and 72 characters");
+		}
+
+		String role = dto.getRole() == null || dto.getRole().isBlank() ? "USER"
+				: dto.getRole().trim().toUpperCase(Locale.ROOT);
+
+		if (!SELF_REGISTRATION_ROLES.contains(role)) {
+			throw new InvalidRequestException("Role must be USER or PARTNER");
+		}
+
 		User user = new User();
 
 		user.setName(dto.getName());
 		user.setEmail(dto.getEmail());
-		user.setPassword(dto.getPassword());
+		user.setPassword(passwordEncoder.encode(password));
 		user.setPhonenumber(dto.getPhonenumber());
-		user.setRole(dto.getRole());
+		user.setRole(role);
 		user.setActive(true);
 
 		User savedUser = repository.save(user);
@@ -68,7 +95,7 @@ public class UserServiceimpl implements Userservice {
 		Optional<User> optionalUser = repository.findByEmail(dto.getEmail());
 
 		if (optionalUser.isEmpty()) {
-			// No email in the log: it is personal data and may be an attacker's guess.
+
 			log.warn("Login failed: reason=UNKNOWN_ACCOUNT");
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
@@ -80,7 +107,7 @@ public class UserServiceimpl implements Userservice {
 			throw new InvalidRequestException("User account is deleted");
 		}
 
-		if (!user.getPassword().equals(dto.getPassword())) {
+		if (!passwordMatches(user, dto.getPassword())) {
 			log.warn("Login failed: userId={} reason=INVALID_PASSWORD", user.getId());
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
@@ -88,6 +115,9 @@ public class UserServiceimpl implements Userservice {
 		log.info("Login successful: userId={}", user.getId());
 
 		LoginResponseDTO response = new LoginResponseDTO();
+
+		response.setToken(jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole()));
+		response.setExpiresInSeconds(jwtUtil.getExpirationMs() / 1000);
 
 		response.setId(user.getId());
 		response.setName(user.getName());
@@ -120,6 +150,30 @@ public class UserServiceimpl implements Userservice {
 		response.setAddresses(addressList);
 
 		return response;
+	}
+
+	private boolean passwordMatches(User user, String rawPassword) {
+
+		String stored = user.getPassword();
+
+		if (stored == null || rawPassword == null) {
+			return false;
+		}
+
+		if (stored.startsWith("$2a$") || stored.startsWith("$2b$") || stored.startsWith("$2y$")) {
+			return passwordEncoder.matches(rawPassword, stored);
+		}
+
+		boolean legacyMatch = MessageDigest.isEqual(stored.getBytes(StandardCharsets.UTF_8),
+				rawPassword.getBytes(StandardCharsets.UTF_8));
+
+		if (legacyMatch) {
+			user.setPassword(passwordEncoder.encode(rawPassword));
+			repository.save(user);
+			log.info("Password upgraded to BCrypt: userId={}", user.getId());
+		}
+
+		return legacyMatch;
 	}
 
 	@Override

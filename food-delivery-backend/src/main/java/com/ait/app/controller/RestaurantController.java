@@ -1,5 +1,6 @@
 package com.ait.app.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ public class RestaurantController {
 	@Autowired
 	RestaurantService restaurantService;
 
+	@PreAuthorize("#requestDTO.ownerId == principal.id")
 	@PostMapping
 	public ResponseEntity<RestaurantResponseDTO> createRestaurant(@Valid @RequestBody RestaurantRequestDTO requestDTO) {
 		RestaurantResponseDTO response = restaurantService.createRestaurant(requestDTO);
@@ -47,6 +49,42 @@ public class RestaurantController {
 		List<RestaurantListResponseDTO> response = restaurantService.getRestaurantsByCuisine(cuisine);
 
 		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * Restaurants of the logged-in PARTNER, or all restaurants for an ADMIN
+	 * (includes approval state).
+	 */
+	@GetMapping("/manage")
+	public ResponseEntity<List<com.ait.app.dto.RestaurantManageDTO>> getManagedRestaurants(
+			@org.springframework.security.core.annotation.AuthenticationPrincipal com.ait.app.security.AppUserDetails currentUser) {
+
+		return ResponseEntity.ok(restaurantService.getManagedRestaurants(currentUser.getId(), currentUser.getRole()));
+	}
+
+	@GetMapping("/{id}/menu")
+	public ResponseEntity<com.ait.app.dto.RestaurantMenuResponseDTO> getRestaurantMenu(@PathVariable Integer id) {
+
+		return ResponseEntity.ok(restaurantService.getRestaurantMenu(id));
+	}
+
+	@GetMapping("/{id}/menu/manage")
+	public ResponseEntity<List<com.ait.app.dto.MenuItemResponseDTO>> getManagedMenu(@PathVariable Integer id,
+			@org.springframework.security.core.annotation.AuthenticationPrincipal com.ait.app.security.AppUserDetails currentUser) {
+
+		return ResponseEntity.ok(restaurantService.getManagedMenu(id, currentUser.getId(), currentUser.getRole()));
+	}
+
+	@org.springframework.web.bind.annotation.PutMapping("/{id}/approve")
+	public ResponseEntity<com.ait.app.dto.RestaurantManageDTO> approveRestaurant(@PathVariable Integer id) {
+
+		return ResponseEntity.ok(restaurantService.updateApproval(id, true));
+	}
+
+	@org.springframework.web.bind.annotation.PutMapping("/{id}/reject")
+	public ResponseEntity<com.ait.app.dto.RestaurantManageDTO> rejectRestaurant(@PathVariable Integer id) {
+
+		return ResponseEntity.ok(restaurantService.updateApproval(id, false));
 	}
 
 	@GetMapping("/{id}")

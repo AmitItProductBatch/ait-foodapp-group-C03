@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,16 +25,6 @@ import com.ait.app.logging.CorrelationIdFilter;
 
 import jakarta.validation.ConstraintViolationException;
 
-/**
- * Central place where every handled exception is logged and turned into the
- * standard {@link ErrorResponse}.
- * <ul>
- * <li>Expected errors (validation, 404, 409, 403, 401 ...) are logged at WARN
- * without a stack trace.</li>
- * <li>Unexpected errors (500) are logged at ERROR with the full stack trace and
- * the correlation ID. The client only receives a generic message.</li>
- * </ul>
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -71,6 +63,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		return buildExpectedResponse(HttpStatus.UNAUTHORIZED, ex, request);
 	}
 
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, WebRequest request) {
+
+		return buildExpectedResponse(HttpStatus.FORBIDDEN,
+				new UnauthorizedActionException("You do not have permission to perform this action"), request);
+	}
+
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex, WebRequest request) {
+
+		return buildExpectedResponse(HttpStatus.UNAUTHORIZED,
+				new InvalidCredentialsException("Authentication required. Please log in."), request);
+	}
+
 	@ExceptionHandler(OrderCancellationException.class)
 	public ResponseEntity<ErrorResponse> handlerOrderCancellation(OrderCancellationException ex, WebRequest request) {
 
@@ -91,7 +97,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		List<String> fieldErrors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage)
 				.collect(Collectors.toList());
 
-		// Field messages only: rejected values are never logged (may be sensitive).
 		logExpected(HttpStatus.BAD_REQUEST, "Validation failed " + fieldErrors, request);
 
 		ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -104,7 +109,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-		// The exception message can echo parts of the request body, so it is not logged.
 		logExpected(HttpStatus.BAD_REQUEST, "Malformed JSON request body", request);
 
 		ErrorResponse body = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
@@ -113,11 +117,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
 	}
 
-	/**
-	 * All other Spring MVC exceptions (405, 415, missing parameters, type
-	 * mismatch, ...) pass through here, so they get logged too. The response is
-	 * built exactly as before by the parent class.
-	 */
 	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
 			HttpStatusCode statusCode, WebRequest request) {
@@ -136,7 +135,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 		logUnexpected(ex, request);
 
-		// Never expose ex.getMessage(): it may contain SQL, class names or other internals.
 		return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, GENERIC_ERROR_MESSAGE, request);
 	}
 
@@ -154,13 +152,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		return ResponseEntity.status(status).body(body);
 	}
 
-	/** WARN, one line, no stack trace. */
 	private void logExpected(HttpStatusCode status, String detail, WebRequest request) {
 
 		log.warn("Request failed: status={} path={} detail={}", status.value(), path(request), detail);
 	}
 
-	/** ERROR with full stack trace (exception passed as last argument) and correlation ID. */
 	private void logUnexpected(Exception ex, WebRequest request) {
 
 		log.error("Unexpected error: correlationId={} path={}", correlationId(), path(request), ex);
@@ -170,8 +166,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 		String id = MDC.get(CorrelationIdFilter.MDC_KEY);
 
-		// Fallback when no request filter ran (e.g. async dispatch), so the log
-		// line always carries an ID.
 		return id != null ? id : UUID.randomUUID().toString();
 	}
 
